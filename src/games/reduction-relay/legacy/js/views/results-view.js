@@ -1,0 +1,1 @@
+export function resultsView(){return `<section class="hero"><div class="hero-inner"><h1>Relay championship complete</h1><p>You can now trace many-to-one reductions forward and distribute one scalar gradient backward.</p><button data-action="progress">View mastery</button></div></section>`}

@@ -1,0 +1,3 @@
+export function announce(message) { const region=document.getElementById('live-region'); if(region){region.textContent=''; window.setTimeout(()=>{region.textContent=message;},20);} }
+export function applySettings(settings={}) { document.body.classList.toggle('large-text',Boolean(settings.largeText)); document.body.classList.toggle('reduce-motion',Boolean(settings.reducedMotion)); document.getElementById('text-size-toggle')?.setAttribute('aria-pressed',String(Boolean(settings.largeText))); document.getElementById('motion-toggle')?.setAttribute('aria-pressed',String(Boolean(settings.reducedMotion))); }
+export function focusMain(){document.getElementById('main-content')?.focus({preventScroll:true});}

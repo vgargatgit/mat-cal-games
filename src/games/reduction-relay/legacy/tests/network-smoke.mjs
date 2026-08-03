@@ -1,0 +1,9 @@
+const endpoint=process.argv[2]||'http://127.0.0.1:9224';
+const pageUrl=process.argv[3]||'http://localhost:8080/';
+const tabs=await (await fetch(`${endpoint}/json`)).json(),tab=tabs.find(t=>t.type==='page');if(!tab)throw new Error('No browser page');
+const ws=new WebSocket(tab.webSocketDebuggerUrl);await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject;});let id=0;const pending=new Map(),failures=[],exceptions=[];
+ws.onmessage=event=>{const message=JSON.parse(event.data);if(message.method==='Network.responseReceived'&&message.params.response.status>=400)failures.push({status:message.params.response.status,url:message.params.response.url});if(message.method==='Network.loadingFailed')failures.push({status:'failed',url:message.params.errorText});if(message.method==='Runtime.exceptionThrown')exceptions.push(message.params.exceptionDetails.text);if(message.id&&pending.has(message.id)){pending.get(message.id)(message);pending.delete(message.id);}};
+const call=(method,params={})=>new Promise((resolve,reject)=>{const callId=++id;pending.set(callId,message=>message.error?reject(new Error(message.error.message)):resolve(message.result));ws.send(JSON.stringify({id:callId,method,params}));});
+await call('Network.enable');await call('Runtime.enable');await call('Page.navigate',{url:pageUrl});await new Promise(resolve=>setTimeout(resolve,3500));
+const evaluated=await call('Runtime.evaluate',{expression:`({title:document.title,summary:document.querySelector('#summary')?.textContent,failed:[...document.querySelectorAll('tr.fail')].map(row=>row.textContent)})`,returnByValue:true});
+console.log(JSON.stringify({failures,exceptions,page:evaluated.result.value},null,2));ws.close();if(failures.length||exceptions.length||evaluated.result.value?.failed?.length)process.exitCode=1;

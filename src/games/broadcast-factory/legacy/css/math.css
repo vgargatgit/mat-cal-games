@@ -1,0 +1,15 @@
+.math-render-pending {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.math-render-target:not(.math-render-pending) {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.math-render-target svg {
+  max-width: 100%;
+  height: auto;
+}

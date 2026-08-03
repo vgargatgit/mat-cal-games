@@ -1,0 +1,2 @@
+@media(max-width:850px){.hero,.board-layout,.dependency-layout{grid-template-columns:1fr}.game-top{grid-template-columns:1fr}.nav{display:none}.app-header{align-items:flex-start}.grid-corner,.grid-label,.jacobian-cell{min-width:86px}.dependency-svg{height:260px}}
+@media(max-width:560px){main{width:min(100% - 1rem,1180px)}.card{border-radius:12px}.hero h1{font-size:2.6rem}.shape-form{align-items:stretch}.field{width:100%}.times{display:none}.actions .btn{flex:1}.grid-corner,.grid-label,.jacobian-cell{min-width:78px;min-height:58px}.app-header{position:relative}}

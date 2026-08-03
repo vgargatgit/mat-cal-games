@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Build the Jacobian — Test Runner</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    body{padding:2rem}.test-shell{width:min(980px,100%);margin:auto}.pass{color:var(--good)}.fail{color:var(--bad)}#results{display:grid;gap:.4rem;margin-top:1rem}
+  </style>
+</head>
+<body>
+  <main class="test-shell card">
+    <p class="eyebrow">In-browser verification</p>
+    <h1>Build the Jacobian tests</h1>
+    <p id="status">Tests have not run yet.</p>
+    <button id="run-tests" class="btn primary" type="button">Run all tests</button>
+    <ol id="results"></ol>
+  </main>
+  <script type="module" src="run-tests.js"></script>
+</body>
+</html>

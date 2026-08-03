@@ -1,0 +1,10 @@
+/* Small compatibility fixes kept separate from the shared visual system. */
+.lab-panel .callout,
+.feedback,
+.hint-card {
+  color: var(--ink);
+}
+
+[hidden] {
+  display: none !important;
+}

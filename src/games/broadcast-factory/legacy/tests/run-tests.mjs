@@ -1,0 +1,20 @@
+import { TestHarness } from './test-harness.js';
+import { registerOperationTests } from './operation-tests.js';
+import { registerDerivativeTests } from './derivative-tests.js';
+import { registerGeneratorTests } from './generator-tests.js';
+import { registerStorageTests } from './storage-tests.js';
+import { registerValidatorTests } from './validator-tests.js';
+import { registerSampleTests } from './sample-tests.js';
+import { registerMathRendererTests } from './math-renderer-tests.js';
+
+const harness = new TestHarness();
+await registerOperationTests(harness);
+await registerDerivativeTests(harness);
+await registerGeneratorTests(harness, 2500);
+await registerStorageTests(harness);
+await registerValidatorTests(harness);
+await registerSampleTests(harness);
+await registerMathRendererTests(harness);
+for (const result of harness.results) console.log(`${result.passed ? 'PASS' : 'FAIL'} ${result.name}${result.error ? ` — ${result.error}` : ''}`);
+console.log(`\n${harness.passed} passed, ${harness.failed} failed`);
+if (harness.failed) process.exitCode = 1;

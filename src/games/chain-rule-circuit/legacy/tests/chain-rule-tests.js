@@ -1,0 +1,12 @@
+import {test,equal,near} from './test-utils.js';
+import {multiplyPathDerivatives,accumulatePathContributions,deriveAcrossGraph,edgeKey} from '../js/math/chain-rule-engine.js';
+import {finiteDifference} from '../js/math/numeric-evaluator.js';
+const scalar={rows:1,columns:1,semanticType:'scalar'};
+const graph={nodes:['x','u','v','y'].map(id=>({id})),edges:[{from:'x',to:'u'},{from:'x',to:'v'},{from:'u',to:'y'},{from:'v',to:'y'}]};
+const derivatives={}; derivatives[edgeKey('x','u')]={expression:'2x',value:4,shape:scalar};derivatives[edgeKey('u','y')]={expression:'1',value:1,shape:scalar};derivatives[edgeKey('x','v')]={expression:'3',value:3,shape:scalar};derivatives[edgeKey('v','y')]={expression:'1',value:1,shape:scalar};
+test('single path factors are output-nearest first',()=>equal(multiplyPathDerivatives(['x','u','y'],derivatives).factors.map(item=>item.expression),['1','2x']));
+test('two path contributions add',()=>equal(deriveAcrossGraph(graph,'x','y',derivatives).value,7));
+test('accumulator retains contributions',()=>equal(accumulatePathContributions([{expression:'a',value:2,shape:scalar},{expression:'b',value:3,shape:scalar}]).contributions.length,2));
+test('finite difference verifies serial scalar chain',()=>near(finiteDifference(x=>Math.sin(x*x),1.2),Math.cos(1.44)*2.4,1e-6));
+test('finite difference verifies residual path',()=>near(finiteDifference(x=>x*x+x,2),5,1e-6));
+test('finite difference verifies product-rule graph',()=>near(finiteDifference(x=>x*x*Math.sin(x),.8),2*.8*Math.sin(.8)+.8*.8*Math.cos(.8),1e-6));

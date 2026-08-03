@@ -1,0 +1,4 @@
+/** Structural dependencies are booleans and never inferred from evaluated slopes. */
+export function dependencyMap(question){const n=question.x?.length||question.losses?.length||3;return Array.from({length:n},(_,i)=>({input:i,depends:true,evaluatedCoefficient:question.w?.[i]??(question.family?.includes('squares')?2*question.x[i]:1)}));}
+export function structuralZero(question,index){const map=dependencyMap(question)[index];return Boolean(map?.depends&&map.evaluatedCoefficient===0);}
+export function propagateStructuralDependencies(pipeline,inputIds){const dependencies=Object.fromEntries(inputIds.map(id=>[id,new Set([id])]));for(const stage of pipeline){const set=new Set();for(const id of stage.inputs)for(const source of dependencies[id]||[])set.add(source);dependencies[stage.output]=set;}return Object.fromEntries(Object.entries(dependencies).map(([id,set])=>[id,[...set]]));}

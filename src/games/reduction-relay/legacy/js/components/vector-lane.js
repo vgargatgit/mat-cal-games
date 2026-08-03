@@ -1,0 +1,1 @@
+export function vectorHTML(name,values){return values.map((v,i)=>`<div class="lane"><div class="lane-label">${name}<sub>${i+1}</sub></div><div class="track"><span class="runner">${v}</span><span class="arrow">→</span></div></div>`).join('')}
