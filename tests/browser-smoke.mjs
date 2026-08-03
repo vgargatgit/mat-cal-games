@@ -37,10 +37,12 @@ const screenshot = async (name) => {
 await mkdir(new URL('../docs/screenshots/', import.meta.url), { recursive: true });
 await call('Runtime.enable');
 await call('Page.enable');
+await call('Network.enable');
+await call('Network.setCacheDisabled', { cacheDisabled: true });
 await call('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 await call('Page.navigate', { url: baseUrl });
 await wait(900);
-await evaluate(`localStorage.removeItem('matrix-calculus-arcade.progress.v1'); location.hash='#/home'; location.reload()`);
+await evaluate(`Object.keys(localStorage).filter(key=>key.startsWith('arcade.training.')).forEach(key=>localStorage.removeItem(key));localStorage.removeItem('matrix-calculus-arcade.progress.v1'); location.hash='#/home'; location.reload()`);
 await wait(700);
 await check('landing title renders', `document.querySelector('h1')?.textContent==='Matrix CalculusArcade'`);
 await check('landing has all primary actions', `['Start journey','New game','Free play','Progress','Settings','Credits'].every(label=>document.body.textContent.includes(label))`);
@@ -48,7 +50,8 @@ await check('page has no horizontal overflow', `document.documentElement.scrollW
 await screenshot('home-desktop');
 
 await evaluate(`location.hash='#/map'`); await wait(350);
-await check('world map has eight game nodes', `document.querySelectorAll('.map-node').length===8`);
+await check('world map has eleven game nodes', `document.querySelectorAll('.map-node').length===11`);
+await check('Chapter III is presented as a graduation arc', `document.querySelector('.chapter-divider')?.textContent.includes('Learning to Train a Network')`);
 await check('only the first journey game is playable', `[...document.querySelectorAll('.map-node > button')].filter(button=>!button.disabled).length===1`);
 await screenshot('world-map-desktop');
 
@@ -68,10 +71,34 @@ await check('free play opens every game', `[...document.querySelectorAll('.map-n
 await check('free play does not mutate unlock progress', `JSON.parse(localStorage.getItem('matrix-calculus-arcade.progress.v1')).unlockedLevel===0`);
 
 await call('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-await evaluate(`(()=>{const state=JSON.parse(localStorage.getItem('matrix-calculus-arcade.progress.v1'));state.unlockedLevel=7;state.completedGames=${JSON.stringify(['shape-sorter','partial-derivative-freeze','build-jacobian','diagonal-detective','broadcast-factory','reduction-relay','chain-rule-circuit','jacobian-tetris'])};state.completedConcepts=${JSON.stringify(['derivative shapes','partial derivatives','Jacobians','broadcasting','reductions','chain rule'])};state.stars=Object.fromEntries(state.completedGames.map(id=>[id,3]));state.achievements=Object.fromEntries(['Shape Master','Broadcast Hero','Reduction Wizard','Jacobian Genius','Chain Rule Master','Perfect Game','Speed Runner','No Hints Used'].map(name=>[name,new Date().toISOString()]));localStorage.setItem('matrix-calculus-arcade.progress.v1',JSON.stringify(state));location.hash='#/mastery';location.reload()})()`);
+await evaluate(`window.scrollTo({top:document.querySelector('.chapter-divider').offsetTop-150,left:0,behavior:'instant'})`); await wait(250);
+await screenshot('chapter-iii-map-desktop');
+
+await evaluate(`document.querySelectorAll('.map-node > button')[8].click()`); await wait(450);
+await check('ReLU Gatekeeper loads as a native arcade game', `document.querySelector('.gatekeeper .relu-gate')&&document.querySelector('.game-frame')===null`);
+await evaluate(`document.querySelectorAll('.choice-grid .button')[1].click()`); await wait(150);
+await check('ReLU decision gives concise local-Jacobian feedback', `document.querySelector('.training-feedback--correct')?.textContent.includes('ReLU′')`);
+await screenshot('relu-gatekeeper-desktop');
+
+await evaluate(`location.hash='#/game/gradient-descent-navigator'`); await wait(450);
+await check('Gradient Descent Navigator renders linked live visualizations', `document.querySelector('.contour-map')&&document.querySelector('.loss-sparkline')&&document.querySelector('#eta-slider')`);
+await evaluate(`document.querySelector('#eta-slider').value='.25';document.querySelector('#eta-slider').dispatchEvent(new Event('input',{bubbles:true}));[...document.querySelectorAll('.navigator-controls button')].find(button=>button.textContent.includes('Take one')).click()`); await wait(700);
+await check('optimizer step updates the parameter trace', `document.querySelector('[data-trace]').getAttribute('points').trim().split(' ').length>=2`);
+await screenshot('gradient-descent-desktop');
+
+await evaluate(`location.hash='#/game/backpropagation-boss'`); await wait(450);
+await check('Boss Battle renders the tiny network and Jacobian tray', `document.querySelectorAll('.network-layer').length===5&&document.querySelectorAll('.transform-tile').length>=7`);
+await evaluate(`document.querySelector('[data-transform="loss-gradient"]').click();[...document.querySelectorAll('.boss-console .button')].find(button=>button.textContent.includes('Route gradient')).click()`); await wait(180);
+await check('correct boss move lights an edge and explains why', `document.querySelector('.training-feedback--correct')?.textContent.includes('first incoming gradient')`);
+await screenshot('backprop-boss-desktop');
+
+await evaluate(`(()=>{const state=JSON.parse(localStorage.getItem('matrix-calculus-arcade.progress.v1'));state.unlockedLevel=10;state.completedGames=${JSON.stringify(['shape-sorter','partial-derivative-freeze','build-jacobian','diagonal-detective','broadcast-factory','reduction-relay','chain-rule-circuit','jacobian-tetris','relu-gatekeeper','gradient-descent-navigator','backpropagation-boss'])};state.completedConcepts=${JSON.stringify(['derivative shapes','partial derivatives','Jacobians','broadcasting','reductions','chain rule','ReLU derivatives','gradient descent','complete backpropagation'])};state.stars=Object.fromEntries(state.completedGames.map(id=>[id,3]));state.achievements=Object.fromEntries(['Shape Master','Broadcast Hero','Reduction Wizard','Jacobian Genius','Chain Rule Master','Gatekeeper','Descent Navigator','Backprop Boss','Backpropagation Rebuilt','Perfect Game','Speed Runner','No Hints Used'].map(name=>[name,new Date().toISOString()]));localStorage.setItem('matrix-calculus-arcade.progress.v1',JSON.stringify(state));location.hash='#/mastery';location.reload()})()`);
 await wait(700);
-await check('mastery synthesis renders after all games', `document.querySelector('h1')?.textContent==='Matrix Calculus Mastery'&&document.body.textContent.includes('Derivative shapes')&&document.body.textContent.includes('Chain rule')`);
+await check('mastery synthesis renders after all games', `document.querySelector('h1')?.textContent==='Matrix Calculus Mastery'&&document.body.textContent.includes('Backward pass')&&document.body.textContent.includes('Weight update')`);
 await screenshot('mastery-desktop');
+await evaluate(`location.hash='#/inside-backprop'`); await wait(350);
+await check('Inside Backpropagation sandbox unlocks after the boss', `document.querySelector('.backprop-sandbox')&&document.querySelectorAll('.sandbox-layer').length>=3`);
+await screenshot('inside-backprop-desktop');
 
 if (exceptions.length) throw new Error(`Browser exceptions:\n${exceptions.join('\n')}`);
 console.log('Browser smoke checks passed and screenshots captured.');

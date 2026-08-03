@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GAME_CATALOG } from '../src/games/catalog.js';
 
-test('catalog contains the eight games in curriculum order', () => {
-  assert.equal(GAME_CATALOG.length, 8);
-  assert.deepEqual(GAME_CATALOG.map((game) => game.order), ['01', '02', '03', '04', '05', '06', '07', '08']);
+test('catalog contains the original curriculum and Chapter III trilogy', () => {
+  assert.equal(GAME_CATALOG.length, 11);
+  assert.deepEqual(GAME_CATALOG.map((game) => game.order), ['01', '02', '03', '04', '05', '06', '07', '08', 'III·1', 'III·2', 'III·3']);
 });
 
 test('every game implements the GameModule contract', async () => {
@@ -16,8 +16,8 @@ test('every game implements the GameModule contract', async () => {
   }
 });
 
-test('legacy storage namespaces are unique', () => {
+test('all game storage namespaces are unique', () => {
   const keys = GAME_CATALOG.map((game) => game.storageKey);
   assert.equal(new Set(keys).size, keys.length);
-  assert.ok(keys.every((key) => key.startsWith('arcade.legacy.')));
+  assert.ok(keys.every((key) => key.startsWith('arcade.')));
 });
