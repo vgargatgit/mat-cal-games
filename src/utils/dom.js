@@ -1,7 +1,9 @@
 export function el(tag, options = {}, ...children) {
-  const node = document.createElement(tag);
+  const svgTags = new Set(['svg', 'defs', 'radialGradient', 'stop', 'rect', 'ellipse', 'polyline', 'line', 'marker', 'path', 'g', 'circle']);
+  const isSvg = svgTags.has(tag);
+  const node = isSvg ? document.createElementNS('http://www.w3.org/2000/svg', tag) : document.createElement(tag);
   Object.entries(options).forEach(([key, value]) => {
-    if (key === 'className') node.className = value;
+    if (key === 'className') isSvg ? node.setAttribute('class', value) : node.className = value;
     else if (key === 'dataset') Object.assign(node.dataset, value);
     else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2).toLowerCase(), value);
     else if (value !== false && value !== null && value !== undefined) node.setAttribute(key, value === true ? '' : value);
