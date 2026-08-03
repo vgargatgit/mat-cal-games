@@ -14,6 +14,7 @@ import { ResultScreen } from '../../components/result-screen.js';
 import { Stars } from '../../components/stars.js';
 import { Toast } from '../../components/toast.js';
 import { clear, el } from '../../utils/dom.js';
+import { InsideBackprop } from './inside-backprop.js';
 
 const ENCYCLOPEDIA = [
   { id: 'derivative-shapes', title: 'Derivative shapes', requires: 'derivative shapes', definition: 'The derivative of m outputs with respect to n inputs has m rows and n columns.', example: 'f: ℝⁿ → ℝᵐ gives ∂f/∂x with shape m × n.', mistakes: 'Reversing the output and input dimensions.', games: ['Shape Sorter', 'Build the Jacobian'] },
@@ -22,6 +23,9 @@ const ENCYCLOPEDIA = [
   { id: 'broadcasting', title: 'Broadcasting', requires: 'broadcasting', definition: 'Broadcasting reuses one value across several output lanes, creating repeated dependency paths.', example: 'For y=x+b with scalar b and vector y, ∂y/∂b is a column of ones.', mistakes: 'Treating a shared scalar like an independent vector parameter.', games: ['Broadcast Factory'] },
   { id: 'reductions', title: 'Reductions', requires: 'reductions', definition: 'A reduction combines several input lanes into fewer outputs, often one scalar.', example: 'For s=Σᵢxᵢ, ∂s/∂x is a row of ones.', mistakes: 'Keeping the vector shape after the scalar finish or missing a mean factor.', games: ['Reduction Relay'] },
   { id: 'chain-rule', title: 'Chain rule', requires: 'chain rule', definition: 'Multiply local derivatives along each route and add the contributions of separate routes.', example: '∂y/∂x=(∂y/∂u)(∂u/∂x), with compatible inner dimensions.', mistakes: 'Reversing matrix order or adding serial factors.', games: ['Chain Rule Circuit', 'Jacobian Tetris'] },
+  { id: 'relu', title: 'ReLU backward gate', requires: 'ReLU derivatives', definition: 'ReLU contributes a diagonal local Jacobian containing ones for positive pre-activations and zeros otherwise.', example: 'A zero diagonal entry blocks only its gradient lane.', mistakes: 'Using the ReLU output as its derivative or assuming a blocked gradient makes the weight zero.', games: ['ReLU Gatekeeper'] },
+  { id: 'gradient-descent', title: 'Gradient descent', requires: 'gradient descent', definition: 'An optimizer subtracts a scaled parameter gradient to seek lower loss.', example: 'θ ← θ − η∇θL.', mistakes: 'Walking with the gradient, overshooting with η, or calling a plateau a minimum.', games: ['Gradient Descent Navigator'] },
+  { id: 'backpropagation', title: 'Backpropagation', requires: 'complete backpropagation', definition: 'Backpropagation routes one incoming loss gradient through the transposed local Jacobians of a computation graph.', example: 'Linear → ReLU → linear → loss is the same chain rule practised earlier.', mistakes: 'Memorizing a formula while losing transpose, broadcast-reduction, or parameter-gradient structure.', games: ['Backpropagation Boss Battle'] },
 ];
 
 export class ArcadeShell {
@@ -69,7 +73,7 @@ export class ArcadeShell {
     this.activeModule?.destroy(); this.activeModule = null; this.currentGame = null;
     this.shell?.classList.toggle('arcade-shell--playing', route.name === 'game');
     clear(this.main);
-    const views = { home: () => this.renderHome(), map: () => this.renderMap(route.id === 'free'), progress: () => this.renderProgress(), settings: () => this.renderSettings(), credits: () => this.renderCredits(), encyclopedia: () => this.renderEncyclopedia(), mastery: () => this.renderMastery() };
+    const views = { home: () => this.renderHome(), map: () => this.renderMap(route.id === 'free'), progress: () => this.renderProgress(), settings: () => this.renderSettings(), credits: () => this.renderCredits(), encyclopedia: () => this.renderEncyclopedia(), mastery: () => this.renderMastery(), 'inside-backprop': () => this.renderInsideBackprop() };
     if (route.name === 'game') await this.renderGame(route.id);
     else (views[route.name] ?? views.home)();
     this.main.focus({ preventScroll: true });
@@ -81,26 +85,26 @@ export class ArcadeShell {
     this.main.append(el('section', { className: 'home-screen' },
       el('div', { className: 'home-screen__glow', 'aria-hidden': 'true' }),
       el('div', { className: 'home-screen__copy' },
-        el('p', { className: 'eyebrow' }, 'Eight games · One connected journey'),
+        el('p', { className: 'eyebrow' }, 'Eleven games · Three connected chapters'),
         el('h1', {}, 'Matrix Calculus', el('span', {}, 'Arcade')),
-        el('p', { className: 'home-screen__subtitle' }, 'Build intuition for derivative shapes, Jacobians, broadcasting, reductions, and the chain rule—one puzzle at a time.'),
+        el('p', { className: 'home-screen__subtitle' }, 'Learn the rules of matrix calculus, then use them to reconstruct neural-network training from first principles.'),
         el('div', { className: 'home-actions' },
           Button(completed ? 'Continue journey' : 'Start journey', { kind: 'primary', onclick: () => this.continueJourney() }),
           Button('New game', { onclick: () => this.confirmNewGame() }),
           Button('Free play', { onclick: () => this.go('map/free') })),
         el('div', { className: 'home-links' },
           this.textLink('Progress', 'progress'), this.textLink('Settings', 'settings'), this.textLink('Credits', 'credits'))),
-      el('aside', { className: 'home-screen__cabinet', 'aria-label': `${completed} of 8 games complete` },
+      el('aside', { className: 'home-screen__cabinet', 'aria-label': `${completed} of ${GAME_CATALOG.length} games complete` },
         el('span', { className: 'cabinet-symbol', 'aria-hidden': 'true' }, 'J'),
-        el('strong', {}, `${completed}/8`), el('span', {}, 'modules cleared'),
-        ProgressBar(completed * 12.5, 'Arcade completion'))));
+        el('strong', {}, `${completed}/${GAME_CATALOG.length}`), el('span', {}, 'modules cleared'),
+        ProgressBar((completed / GAME_CATALOG.length) * 100, 'Arcade completion'))));
   }
 
   textLink(label, route) { return el('button', { type: 'button', className: 'text-link', onclick: () => this.go(route) }, label); }
 
   continueJourney() {
     const next = GAME_CATALOG.findIndex((game) => !this.progress.state.completedGames.includes(game.id));
-    const index = next < 0 ? 7 : Math.min(next, this.progress.state.unlockedLevel);
+    const index = next < 0 ? GAME_CATALOG.length - 1 : Math.min(next, this.progress.state.unlockedLevel);
     this.go(`game/${GAME_CATALOG[index].id}`);
   }
 
@@ -121,7 +125,8 @@ export class ArcadeShell {
         el('div', { className: 'map-node__icon', 'aria-hidden': 'true' }, unlocked ? game.icon : '·'),
         el('div', { className: 'map-node__copy' }, el('span', { className: 'eyebrow' }, `${game.order} · ${game.difficulty}`), el('h2', {}, game.title), el('p', {}, game.description), Stars(state.stars[game.id] ?? 0)),
         Button(completed ? 'Replay' : unlocked ? 'Play' : 'Locked', { kind: unlocked ? 'primary' : 'secondary', disabled: !unlocked, 'aria-label': `${unlocked ? 'Play' : 'Locked'} ${game.title}`, onclick: () => { if (unlocked) this.go(`game/${game.id}`); } }));
-      return index === GAME_CATALOG.length - 1 ? [node] : [node, el('div', { className: 'map-path', 'aria-hidden': 'true' }, '↓')];
+      const before = index === 8 ? [el('section', { className: 'chapter-divider' }, el('p', { className: 'eyebrow' }, 'Graduation unlocked'), el('h2', {}, 'Chapter III — Learning to Train a Network'), el('p', {}, 'The rules are restored. Now use them to repair an ancient neural network.'))] : [];
+      return [...before, node, ...(index === GAME_CATALOG.length - 1 ? [] : [el('div', { className: 'map-path', 'aria-hidden': 'true' }, '↓')])];
     });
     this.main.append(el('section', { className: 'page world-map' },
       this.pageHeading(freePlay ? 'Free Play' : 'World Map', freePlay ? 'Every cabinet is open. Free Play does not bypass or alter your journey progress.' : 'Clear a module to unlock the next stop.'),
@@ -145,6 +150,8 @@ export class ArcadeShell {
         hintsUsed: () => this.hintsUsed,
         onHint: () => { this.hintsUsed += 1; this.progress.addHint(); },
         onReady: () => this.audio.play('click'),
+        onCorrect: () => this.audio.play('correct'),
+        onIncorrect: () => this.audio.play('incorrect'),
         onProgress: (value) => this.updateGameProgress(value),
         onComplete: (result) => this.handleComplete(game, index, result),
       });
@@ -169,7 +176,7 @@ export class ArcadeShell {
       this.activeModule?.destroy(); this.activeModule = null;
       this.main.replaceChildren(ResultScreen(game, result, {
         onMap: () => this.go('map'),
-        onContinue: () => game.id === 'jacobian-tetris' ? this.go('mastery') : this.go(`game/${GAME_CATALOG[index + 1].id}`),
+        onContinue: () => game.finale ? this.go('mastery') : this.go(`game/${GAME_CATALOG[index + 1].id}`),
       }));
     }, 500);
   }
@@ -187,13 +194,13 @@ export class ArcadeShell {
 
   renderProgress() {
     const state = this.progress.state;
-    const percent = Math.round((state.completedGames.length / 8) * 100);
+    const percent = Math.round((state.completedGames.length / GAME_CATALOG.length) * 100);
     this.main.append(el('section', { className: 'page' }, this.pageHeading('Progress', 'Your journey is stored only in this browser.'),
       el('div', { className: 'stats-grid' },
-        metric(`${percent}%`, 'overall mastery'), metric(`${state.completedGames.length}/8`, 'games complete'), metric(Object.values(state.stars).reduce((sum, value) => sum + Number(value || 0), 0), 'stars earned'), metric(Object.keys(state.achievements).length, 'achievements')),
+        metric(`${percent}%`, 'overall mastery'), metric(`${state.completedGames.length}/${GAME_CATALOG.length}`, 'games complete'), metric(Object.values(state.stars).reduce((sum, value) => sum + Number(value || 0), 0), 'stars earned'), metric(Object.keys(state.achievements).length, 'achievements')),
       Card(el('h2', {}, 'Overall mastery'), ProgressBar(percent, 'Overall mastery'), el('p', {}, `${state.completedConcepts.length} concepts reinforced across the arcade.`)),
       el('section', { className: 'achievement-section' }, el('h2', {}, 'Achievements'),
-        el('div', { className: 'badge-grid' }, ...['Shape Master', 'Broadcast Hero', 'Reduction Wizard', 'Jacobian Genius', 'Chain Rule Master', 'Perfect Game', 'Speed Runner', 'No Hints Used'].map((name) => el('div', { className: `badge ${state.achievements[name] ? 'badge--earned' : ''}` }, el('span', { 'aria-hidden': 'true' }, state.achievements[name] ? '◆' : '◇'), el('strong', {}, name)))))));
+        el('div', { className: 'badge-grid' }, ...['Shape Master', 'Broadcast Hero', 'Reduction Wizard', 'Jacobian Genius', 'Chain Rule Master', 'Gatekeeper', 'Descent Navigator', 'Backprop Boss', 'Backpropagation Rebuilt', 'Perfect Game', 'Speed Runner', 'No Hints Used'].map((name) => el('div', { className: `badge ${state.achievements[name] ? 'badge--earned' : ''}` }, el('span', { 'aria-hidden': 'true' }, state.achievements[name] ? '◆' : '◇'), el('strong', {}, name)))))));
   }
 
   renderSettings() {
@@ -223,23 +230,28 @@ export class ArcadeShell {
 
   renderMastery() {
     const state = this.progress.state;
-    if (state.completedGames.length < 8) { this.go('map'); return; }
+    if (state.completedGames.length < GAME_CATALOG.length) { this.go('map'); return; }
     const stars = Object.values(state.stars).reduce((sum, value) => sum + Number(value || 0), 0);
     this.main.append(el('section', { className: 'mastery-screen' },
       el('p', { className: 'eyebrow' }, 'Journey complete'), el('h1', {}, 'Matrix Calculus Mastery'),
-      el('p', { className: 'mastery-screen__lead' }, 'You connected derivative shapes, partial derivatives, Jacobians, broadcasting, reductions, and the chain rule into one working mental model.'),
-      el('div', { className: 'stats-grid' }, metric('8/8', 'games complete'), metric(`${stars}/24`, 'stars earned'), metric(state.completedConcepts.length, 'concepts reinforced'), metric(Object.keys(state.achievements).length, 'achievements')),
-      el('div', { className: 'mastery-chain' }, ...['Derivative shapes', 'Partial derivatives', 'Jacobians', 'Broadcasting', 'Reductions', 'Chain rule'].map((name, index) => el('span', {}, name, index < 5 ? el('i', { 'aria-hidden': 'true' }, '→') : null))),
-      el('p', {}, 'That is the whole synthesis—no new rules, just the ideas you practised working together.'),
-      el('div', { className: 'button-row' }, Button('Review encyclopedia', { onclick: () => this.go('encyclopedia') }), Button('Return to arcade', { kind: 'primary', onclick: () => this.go('home') }))));
+      el('p', { className: 'mastery-screen__lead' }, 'You connected derivative shapes, local Jacobians, activation gates, gradient descent, and a complete backward pass into one working model of neural-network training.'),
+      el('div', { className: 'stats-grid' }, metric(`${GAME_CATALOG.length}/${GAME_CATALOG.length}`, 'games complete'), metric(`${stars}/${GAME_CATALOG.length * 3}`, 'stars earned'), metric(state.completedConcepts.length, 'concepts reinforced'), metric(Object.keys(state.achievements).length, 'achievements')),
+      el('div', { className: 'mastery-chain' }, ...['Forward pass', 'Local Jacobians', 'Backward pass', 'Parameter gradients', 'Weight update', 'Lower loss'].map((name, index) => el('span', {}, name, index < 5 ? el('i', { 'aria-hidden': 'true' }, '→') : null))),
+      el('p', {}, 'You did not memorize backpropagation. You reconstructed it from rules you already understood.'),
+      el('div', { className: 'button-row' }, Button('Inside Backpropagation', { onclick: () => this.go('inside-backprop') }), Button('Review encyclopedia', { onclick: () => this.go('encyclopedia') }), Button('Return to arcade', { kind: 'primary', onclick: () => this.go('home') }))));
     Confetti(this.main);
   }
 
   renderCredits() {
-    this.main.append(el('section', { className: 'page narrow' }, this.pageHeading('Credits', 'Built as one learning journey from eight original matrix-calculus games.'),
+    this.main.append(el('section', { className: 'page narrow' }, this.pageHeading('Credits', 'Built as one learning journey from eight original games and a native backpropagation trilogy.'),
       Card(el('h2', {}, 'Learning foundation'), el('p', {}, 'Inspired by “The Matrix Calculus You Need for Deep Learning” by Terence Parr and Jeremy Howard.'), el('a', { href: 'https://explained.ai/matrix-calculus/', target: '_blank', rel: 'noreferrer' }, 'Read the paper ↗')),
       Card(el('h2', {}, 'Source games'), el('p', {}, GAME_CATALOG.map((game) => game.title).join(' · '))),
       Button('Back home', { kind: 'primary', onclick: () => this.go('home') })));
+  }
+
+  renderInsideBackprop() {
+    if (!this.progress.state.completedGames.includes('backpropagation-boss')) { this.go('map'); return; }
+    this.main.append(InsideBackprop(() => this.go('mastery')));
   }
 
   pageHeading(title, subtitle) { return el('header', { className: 'page-heading' }, el('p', { className: 'eyebrow' }, 'Matrix Calculus Arcade'), el('h1', {}, title), el('p', {}, subtitle)); }

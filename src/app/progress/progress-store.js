@@ -18,14 +18,15 @@ export function sanitizeProgress(value) {
   const fresh = defaultProgress();
   if (!value || value.schemaVersion !== 1 || typeof value !== 'object') return fresh;
   const strings = (items) => Array.isArray(items) ? [...new Set(items.filter((x) => typeof x === 'string'))] : [];
+  const completedGames = strings(value.completedGames);
   return {
     ...fresh,
-    unlockedLevel: Math.max(0, Math.min(7, Number(value.unlockedLevel) || 0)),
+    unlockedLevel: Math.min(10, Math.max(0, Number(value.unlockedLevel) || 0, Math.min(10, completedGames.length))),
     stars: safeRecord(value.stars),
     achievements: safeRecord(value.achievements),
     bestScore: safeRecord(value.bestScore),
     completedConcepts: strings(value.completedConcepts),
-    completedGames: strings(value.completedGames),
+    completedGames,
     stats: { ...fresh.stats, ...(value.stats ?? {}) },
     settings: { ...fresh.settings, ...(value.settings ?? {}) },
   };
@@ -83,13 +84,13 @@ export class ProgressStore {
     game.concepts.forEach((concept) => {
       if (!this.state.completedConcepts.includes(concept)) this.state.completedConcepts.push(concept);
     });
-    this.state.unlockedLevel = Math.max(this.state.unlockedLevel, Math.min(7, index + 1));
+    this.state.unlockedLevel = Math.max(this.state.unlockedLevel, Math.min(10, index + 1));
     this.state.stars[game.id] = Math.max(Number(this.state.stars[game.id]) || 0, result.stars || 1);
     this.state.bestScore[game.id] = Math.max(Number(this.state.bestScore[game.id]) || 0, result.score || 0);
     this.unlockAchievement(game.achievement);
     if ((result.hintsUsed || 0) === 0) this.unlockAchievement('No Hints Used');
     if ((result.stars || 0) === 3) this.unlockAchievement('Perfect Game');
-    if (this.state.completedGames.length === 8) this.unlockAchievement('Jacobian Genius');
+    if (this.state.completedGames.length === 11) this.unlockAchievement('Backpropagation Rebuilt');
     this.save();
     return !wasComplete;
   }
