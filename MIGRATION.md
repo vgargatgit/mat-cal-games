@@ -19,6 +19,18 @@ Each engine still owns its questions, seeded generators, stage transitions, vali
 
 This boundary is intentional: merging different symbolic parsers or scoring functions solely because their function names look similar would risk mathematical and pedagogical regressions. Purely presentational and application-wide concerns are shared; behavior-sensitive engine utilities remain with their tested game.
 
+## Chapter III native modules
+
+The final three games have no external source repository. They are native modules built directly on the arcade lifecycle:
+
+| Chapter III | Module | Pure engine |
+|---|---|---|
+| ReLU Gatekeeper | `src/games/relu-gatekeeper/view.js` | `engine.js` gate, chain, and dead-neuron rules |
+| Gradient Descent Navigator | `src/games/gradient-descent-navigator/view.js` | `engine.js` landscapes and update rules |
+| Backpropagation Boss Battle | `src/games/backpropagation-boss/view.js` | `engine.js` 2→3→1 forward/backward pass |
+
+Existing version-1 arcade progress migrates without reset. Eight completed games raise `unlockedLevel` to the Chapter III gateway automatically.
+
 ## Storage migration
 
 Several standalone games used `matrixCalculusSuite.progress.v1` for incompatible root objects. In one origin, opening one game could erase another game's state. The arcade assigns every engine a stable unique key:

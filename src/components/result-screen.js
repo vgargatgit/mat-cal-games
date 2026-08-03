@@ -14,7 +14,7 @@ export function ResultScreen(game, result, { onContinue, onMap }) {
       resultBlock('Next concept', game.nextConcept)),
     el('div', { className: 'button-row' },
       Button('World map', { onclick: onMap }),
-      Button(game.order === '08' ? 'View mastery' : 'Continue', { kind: 'primary', onclick: onContinue })));
+      Button(game.finale ? 'View mastery' : 'Continue', { kind: 'primary', onclick: onContinue })));
 }
 
 function resultBlock(title, copy) { return el('article', { className: 'card' }, el('h2', {}, title), el('p', {}, copy)); }

@@ -12,5 +12,7 @@ The integration consolidates these formerly repeated application concerns:
 - three byte-identical MathJax SVG bundles plus two CDN references → one shared local runtime;
 - repeated route-specific loading logic → one lazy game catalog and lifecycle adapter;
 - repeated completion-to-next-game logic → one result and unlock pipeline.
+- repeated Chapter III persistence, announcements, and star thresholds → `training-runtime.js`.
+- ReLU and backpropagation numerical truth → small pure engines shared by rendering and tests.
 
 Behavior-sensitive helpers such as seeded question generation, validators, scoring, symbolic simplification, and keyboard state machines remain within their games. Although some share generic names like `shuffle` or `scoreRound`, their constraints and outcomes are part of gameplay fidelity and are not treated as interchangeable without a cross-game behavioral specification.

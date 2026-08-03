@@ -41,3 +41,9 @@ test('free play unlocks without mutating progression', () => {
   assert.equal(store.isUnlocked(7, true), true);
   assert.equal(store.state.unlockedLevel, 0);
 });
+
+test('completed original curriculum migrates to the Chapter III gateway', () => {
+  const completedGames = GAME_DATA.slice(0, 8).map((game) => game.id);
+  const migrated = sanitizeProgress({ ...defaultProgress(), unlockedLevel: 7, completedGames });
+  assert.equal(migrated.unlockedLevel, 8);
+});
