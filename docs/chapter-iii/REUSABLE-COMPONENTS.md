@@ -2,6 +2,12 @@
 
 Chapter III reuses the arcade’s Button, HUD, ProgressBar, Stars, ResultScreen, Toast, Confetti, AudioManager, ThemeManager, Router, and ProgressStore.
 
+- `Tutorial`
+  - multi-step walkthrough built on the shared Modal;
+  - keyboard-native Back, Next, Start, and Close controls;
+  - step count and non-color progress indicators;
+  - structured paragraphs, rules, lists, and callouts for all eleven games.
+
 New reusable pieces are intentionally small:
 
 - `training-runtime.js`

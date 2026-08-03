@@ -18,6 +18,16 @@ npm run serve
 
 Open `http://localhost:8080`. The application uses native ES modules and has no install or build step.
 
+### Debug mode
+
+Debug mode opens all eleven games, every encyclopedia entry, and the post-boss **Inside Backpropagation** laboratory without advancing saved journey progress:
+
+```bash
+npm run serve:debug
+```
+
+Open `http://localhost:8081`. The debug server redirects the root to `?debug=1#/map` and uses port 8081 so it can run beside the normal server. Debug mode is URL-scoped and visibly marked in the arcade header. It can also be enabled on an existing server by opening `http://localhost:8080/?debug=1#/map`.
+
 ```bash
 npm test       # shell and module-contract tests
 npm run check  # JavaScript syntax checks
@@ -34,7 +44,7 @@ src/
 │   ├── router/       # shell-owned hash navigation
 │   ├── shell/        # landing, map, game host, settings, results, mastery
 │   └── theme/        # light, dark, contrast, and reduced-motion preferences
-├── components/       # buttons, cards, dialog/modal, HUD, stars, toast, hint,
+├── components/       # buttons, cards, dialog/modal, tutorial, HUD, stars, toast, hint,
 │                     # progress, confetti, results, loading, achievements,
 │                     # and the chain-rule product visualizer
 ├── games/
@@ -63,7 +73,7 @@ Every cabinet exports the same lifecycle contract:
 }
 ```
 
-The shell lazy-loads a cabinet only after route and progression checks. The adapter mounts the original game in a same-origin frame to preserve its DOM, engine state, keyboard behavior, scoring, and mathematical validation. It suppresses redundant source chrome and reports campaign progress back to the shared HUD. Games never import or call the router.
+The shell lazy-loads a cabinet only after route and progression checks. The adapter mounts the original game in a same-origin frame to preserve its DOM, engine state, keyboard behavior, scoring, and mathematical validation. It suppresses redundant source chrome and reports campaign progress back to the shared HUD. Games never import or call the router. Every cabinet receives a shared first-run tutorial and a persistent HUD **Rules** control; the curriculum is documented in [docs/TUTORIALS.md](./docs/TUTORIALS.md).
 
 ## Progress and privacy
 

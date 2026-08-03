@@ -6,6 +6,8 @@ Run Chapter III only after learners can explain numerator-layout Jacobian shape,
 
 ## ReLU Gatekeeper
 
+The first visit opens a four-step tutorial. Encourage learners to read it once before answering, then use the shared HUD **Rules** button when reviewing the chain and hidden-layer rules. Completing or dismissing the walkthrough marks it as seen in the arcade tutorial record; starting a new arcade journey shows it again.
+
 | Trial | Interaction | Teaching purpose | Debrief prompt |
 |---|---|---|---|
 | Read one gate | Pass/block values around zero | ReLU is piecewise and local | “Which value does the gate inspect?” |

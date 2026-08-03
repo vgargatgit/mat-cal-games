@@ -6,7 +6,8 @@ The integration consolidates these formerly repeated application concerns:
 - eight global progress entry points → one versioned `ProgressStore`;
 - repeated mute and feedback tones → one `AudioManager`;
 - repeated theme and reduced-motion toggles → one `ThemeManager`;
-- repeated home, restart, hint, progress, star, and mute controls → one HUD;
+- repeated home, restart, rules, hint, progress, star, and mute controls → one HUD;
+- eleven game-specific onboarding entry points → one `Tutorial` renderer, curriculum catalogue, and first-run store;
 - repeated buttons, cards, modal/dialogs, hints, progress bars, stars, loading, result, confetti, toast, and achievement UI → shared components;
 - repeated shell colors, spacing, focus, animations, buttons, dialogs, and responsive rules → six shared stylesheets;
 - three byte-identical MathJax SVG bundles plus two CDN references → one shared local runtime;

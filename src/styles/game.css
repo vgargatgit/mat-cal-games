@@ -31,7 +31,7 @@
 }
 @media (max-width: 600px) {
   .hud { position: relative; grid-template-columns: 1fr; }
-  .hud__actions { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .hud__actions { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .hud__actions .button { padding-inline: .3rem; }
   .hud__actions .button span:first-child { display: none; }
   .hud__progress { grid-row: auto; grid-column: auto; }

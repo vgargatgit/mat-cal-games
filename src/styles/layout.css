@@ -1,9 +1,11 @@
 .arcade-shell { min-height: 100dvh; }
 .arcade-header { position: sticky; z-index: 50; top: 0; display: flex; align-items: center; justify-content: space-between; min-height: 72px; padding: .75rem clamp(1rem, 4vw, 3.5rem); background: color-mix(in srgb, var(--paper) 88%, transparent); border-bottom: 1px solid var(--line); backdrop-filter: blur(18px); }
+.arcade-header__identity { display: flex; align-items: center; gap: .85rem; }
 .arcade-brand { display: inline-flex; gap: .7rem; align-items: center; padding: 0; color: var(--ink); text-align: left; background: none; border: 0; cursor: pointer; }
 .arcade-brand__mark { display: grid; width: 42px; height: 42px; color: #fff; background: var(--primary); border-radius: 13px; place-items: center; font-family: Georgia, serif; font-size: 1.6rem; box-shadow: 0 7px 0 color-mix(in srgb, var(--primary-dark) 45%, transparent); }
 .arcade-brand strong, .arcade-brand small { display: block; }
 .arcade-brand small { color: var(--ink-soft); font-size: .7rem; }
+.debug-badge { padding: .35rem .55rem; color: #5b3000; background: #ffd98b; border: 1px solid #bb7500; border-radius: 999px; font-size: .68rem; font-weight: 900; letter-spacing: .02em; text-transform: uppercase; }
 .arcade-nav { display: flex; gap: .25rem; }
 .arcade-nav button { padding: .55rem .75rem; color: var(--ink-soft); background: transparent; border: 0; border-radius: 10px; cursor: pointer; font-weight: 750; }
 .arcade-nav button:hover { color: var(--ink); background: var(--surface-soft); }
@@ -80,6 +82,8 @@
 @media (max-width: 560px) {
   .arcade-header { display: block; }
   .arcade-brand { margin-bottom: .7rem; }
+  .arcade-header__identity { align-items: flex-start; flex-direction: column; margin-bottom: .7rem; }
+  .arcade-header__identity .arcade-brand { margin-bottom: 0; }
   .arcade-nav { width: 100%; }
   .arcade-nav button { padding: .45rem; font-size: .8rem; }
   .home-screen { min-height: auto; padding-block: 3rem; }
