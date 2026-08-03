@@ -28,6 +28,7 @@ export function equivalentExpressions(left, right, options = {}) {
 }
 
 export function safeParse(input) {
+  if (!String(input).trim()) return { ok: false, error: 'Enter a derivative expression before applying it.' };
   try {
     const ast = parseExpression(input);
     return { ok: true, ast };

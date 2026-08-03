@@ -10,7 +10,7 @@ The first visit opens a four-step tutorial. Encourage learners to read it once b
 
 | Trial | Interaction | Teaching purpose | Debrief prompt |
 |---|---|---|---|
-| Read one gate | Pass/block values around zero | ReLU is piecewise and local | “Which value does the gate inspect?” |
+| Read one gate | Isolate ReLU′(z) in ∂L/∂z = (∂L/∂a)·ReLU′(z), then pass/block values around zero | z selects the local 0-or-1 factor; later work can focus on the incoming factor and longer products | “Which factor is this gate responsible for, and why does z select it?” |
 | Output is not derivative | Compare forward output with backward derivative | Separate value flow from sensitivity flow | “Why can output 3 have derivative 1?” |
 | Guard a chain | Predict survival across serial gates | A zero factor blocks the full path product | “Which local Jacobian erased the path?” |
 | Restore the hidden layer | Select all dead neurons | ReLU Jacobian is a diagonal mask | “Does small positive mean nearly blocked?” |

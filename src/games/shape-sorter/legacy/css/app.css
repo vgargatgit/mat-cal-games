@@ -118,7 +118,7 @@ h3 { margin: 0 0 .55rem; }
 .reason-tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin: 1rem 0; }
 .reason-tile { border: 1px solid var(--line); border-radius: 999px; background: white; padding: .48rem .7rem; }
 .reason-tile.selected { background: #e8f5ee; border-color: var(--success); }
-.workspace-actions { display: flex; justify-content: center; gap: .65rem; flex-wrap: wrap; }
+.workspace-actions { display: flex; justify-content: center; gap: .65rem; flex-wrap: wrap; margin-top: 1.5rem; }
 .side-panel { padding: 1rem; position: sticky; top: 86px; }
 .side-panel section + section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 .hint-list { padding-left: 1.15rem; margin: .5rem 0; }

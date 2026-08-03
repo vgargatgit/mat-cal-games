@@ -17,7 +17,9 @@ export function createLegacyGameModule(config) {
       frame = document.createElement('iframe');
       frame.className = 'game-frame';
       frame.title = `${config.title} game`;
-      frame.src = new URL('./legacy/index.html', config.moduleUrl).href;
+      const frameUrl = new URL('./legacy/index.html', config.moduleUrl);
+      if (shellContext.debugMode) frameUrl.searchParams.set('debug', '1');
+      frame.src = frameUrl.href;
       frame.allow = 'autoplay';
       container.replaceChildren(frame);
       frame.addEventListener('load', () => {
@@ -36,8 +38,13 @@ export function createLegacyGameModule(config) {
       frame?.remove(); frame = null; context = null; lastSignature = '';
     },
 
-    pause() { if (frame) { frame.inert = true; frame.setAttribute('aria-hidden', 'true'); } },
-    resume() { if (frame) { frame.inert = false; frame.removeAttribute('aria-hidden'); frame.focus(); } },
+    pause() { if (frame) frame.dataset.paused = 'true'; },
+    resume() {
+      if (!frame) return;
+      delete frame.dataset.paused;
+      frame.contentWindow?.focus();
+      frame.contentDocument?.body?.focus({ preventScroll: true });
+    },
     restart() { frame?.contentWindow?.location.reload(); },
     hint() {
       const doc = frame?.contentDocument;

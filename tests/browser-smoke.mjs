@@ -42,7 +42,7 @@ await call('Network.setCacheDisabled', { cacheDisabled: true });
 await call('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 await call('Page.navigate', { url: baseUrl });
 await wait(900);
-await evaluate(`Object.keys(localStorage).filter(key=>key.startsWith('arcade.training.')).forEach(key=>localStorage.removeItem(key));localStorage.removeItem('matrix-calculus-arcade.progress.v1');localStorage.removeItem('matrix-calculus-arcade.tutorials.v1'); location.hash='#/home'; location.reload()`);
+await evaluate(`Object.keys(localStorage).filter(key=>key.startsWith('arcade.training.')||key.startsWith('arcade.legacy.')).forEach(key=>localStorage.removeItem(key));localStorage.removeItem('matrix-calculus-arcade.progress.v1');localStorage.removeItem('matrix-calculus-arcade.tutorials.v1'); location.hash='#/home'; location.reload()`);
 await wait(700);
 await check('landing title renders', `document.querySelector('h1')?.textContent==='Matrix CalculusArcade'`);
 await check('landing has all primary actions', `['Start journey','New game','Free play','Progress','Settings','Credits'].every(label=>document.body.textContent.includes(label))`);
@@ -59,9 +59,12 @@ await evaluate(`document.querySelector('.map-node > button').click()`); await wa
 await check('shared HUD renders', `['Home','Restart','Rules','Hint','Mute'].every(label=>document.querySelector('.hud')?.textContent.includes(label))`);
 await check('first game lazy-loads', `document.querySelector('.game-frame')?.contentDocument?.title==='Shape Sorter'`);
 await check('duplicate game header is suppressed', `getComputedStyle(document.querySelector('.game-frame').contentDocument.querySelector('.topbar')).display==='none'`);
-await check('Shape Sorter receives the shared first-run tutorial', `document.querySelector('dialog[open] h2')?.textContent==='How to play Shape Sorter'&&document.body.textContent.includes('Sort the derivative by shape')&&document.querySelector('.game-frame').inert`);
+await check('Shape Sorter receives the shared first-run tutorial', `document.querySelector('dialog[open] h2')?.textContent==='How to play Shape Sorter'&&document.body.textContent.includes('Sort the derivative by shape')&&document.querySelector('.game-frame').dataset.paused==='true'`);
 await screenshot('shape-sorter-tutorial-desktop');
 await evaluate(`document.querySelector('dialog[open] .icon-button').click()`); await wait(80);
+await evaluate(`(()=>{const frame=document.querySelector('.game-frame');frame.contentDocument.body.style.setProperty('min-height','1800px','important');frame.contentWindow.scrollTo(0,400)})()`); await wait(80);
+await check('legacy game scrolls immediately after its tutorial closes', `(()=>{const frame=document.querySelector('.game-frame');return !frame.dataset.paused&&frame.contentWindow.scrollY>0})()`);
+await evaluate(`(()=>{const frame=document.querySelector('.game-frame');frame.contentDocument.body.style.removeProperty('min-height');frame.contentWindow.scrollTo(0,0)})()`);
 await screenshot('game-hud-desktop');
 
 await call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
@@ -82,7 +85,7 @@ await screenshot('chapter-iii-map-desktop');
 
 await evaluate(`document.querySelectorAll('.map-node > button')[8].click()`); await wait(450);
 await check('ReLU Gatekeeper loads as a native arcade game', `document.querySelector('.gatekeeper .relu-gate')&&document.querySelector('.game-frame')===null`);
-await check('ReLU tutorial opens on the first visit and pauses play', `document.querySelector('dialog[open] .tutorial')&&document.querySelector('dialog h2')?.textContent==='How to play ReLU Gatekeeper'&&document.body.textContent.includes('Guard the backward gradient')&&document.querySelector('.gatekeeper').inert`);
+await check('ReLU tutorial opens on the first visit and pauses play', `document.querySelector('dialog[open] .tutorial')&&document.querySelector('dialog h2')?.textContent==='How to play ReLU Gatekeeper'&&document.body.textContent.includes('Read one gate through the chain rule')&&document.querySelector('.gatekeeper').inert`);
 await screenshot('relu-gatekeeper-tutorial-desktop');
 await evaluate(`document.querySelector('.modal__actions .button--primary').click()`); await wait(80);
 await check('ReLU tutorial states both derivative rules', `document.querySelectorAll('.tutorial-rule').length===2&&document.body.textContent.includes('z > 0')&&document.body.textContent.includes('z ≤ 0')`);
@@ -141,6 +144,17 @@ for (const gameId of tutorialGames) {
   await check(`${gameId} exposes its shared tutorial`, `document.querySelector('dialog[open] h2')?.textContent.startsWith('How to play ')&&document.querySelector('.tutorial__progress')?.textContent.includes('Step 1 of 4')`);
   await evaluate(`document.querySelector('dialog[open] .icon-button').click()`); await wait(30);
 }
+
+await evaluate(`location.hash='#/game/broadcast-factory'`); await wait(300);
+await evaluate(`document.querySelector('.game-frame').contentDocument.querySelector('[data-action="continue-game"]').click()`); await wait(40);
+await evaluate(`document.querySelector('.game-frame').contentDocument.querySelector('[data-action="select-level"][data-value="8"]').click()`); await wait(40);
+await check('debug mode unlocks levels inside legacy games', `(()=>{const doc=document.querySelector('.game-frame').contentDocument;return new URL(doc.location.href).searchParams.get('debug')==='1'&&!doc.querySelector('[data-action="start-round"]').disabled&&!doc.body.textContent.includes('Preview only')})()`);
+await evaluate(`(()=>{const doc=document.querySelector('.game-frame').contentDocument;doc.querySelector('[data-action="select-level"][data-value="1"]').click();doc.querySelector('[data-action="start-round"]').click()})()`); await wait(80);
+await check('guided output dimensions are submitted values, not placeholders', `(()=>{const doc=document.querySelector('.game-frame').contentDocument;return doc.querySelector('#output-rows').value!==''&&doc.querySelector('#output-columns').value!==''})()`);
+await evaluate(`(async()=>{const frame=document.querySelector('.game-frame');let doc=frame.contentDocument;const values=[...doc.querySelectorAll('[data-action="choose-operation"]')].map(button=>button.dataset.value);for(const value of values){doc.querySelector('[data-action="choose-operation"][data-value="'+value+'"]')?.click();await new Promise(resolve=>setTimeout(resolve,20));doc=frame.contentDocument;if(doc.querySelector('.feedback-panel.correct'))break}})()`); await wait(80);
+await check('Broadcast success feedback no longer overlays the board', `(()=>{const panel=document.querySelector('.game-frame').contentDocument.querySelector('.feedback-panel.correct');return panel&&getComputedStyle(panel).position==='relative'&&panel.querySelector('[data-action="dismiss-feedback"]')})()`);
+await evaluate(`document.querySelector('.game-frame').contentDocument.querySelector('[data-action="dismiss-feedback"]').click()`); await wait(40);
+await check('Broadcast station feedback can be dismissed', `!document.querySelector('.game-frame').contentDocument.querySelector('.feedback-panel')`);
 
 if (exceptions.length) throw new Error(`Browser exceptions:\n${exceptions.join('\n')}`);
 console.log('Browser smoke checks passed and screenshots captured.');

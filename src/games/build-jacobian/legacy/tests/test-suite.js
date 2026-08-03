@@ -1,6 +1,6 @@
 import { c, v, add, mul, pow, sin, exp, relu, parseExpression, toPlain, collectVariables, containsVariable, evaluate } from '../js/math/ast.js';
 import { derivative } from '../js/math/derivative.js';
-import { equivalentExpressions } from '../js/math/equivalence.js';
+import { equivalentExpressions, safeParse } from '../js/math/equivalence.js';
 import { jacobianShape, computeJacobian, dependencyMatrix, classifyJacobian, evaluateJacobian, isZeroExpression, numericalJacobian, verifyJacobianNumerically } from '../js/math/jacobian.js';
 import { DETERMINISTIC_ROUNDS, createRound } from '../js/data/rounds.js';
 import { generateRound } from '../js/engine/generator.js';
@@ -60,6 +60,11 @@ export const TESTS = [
     assert(equivalentExpressions(parseExpression('x_1+x_1'), parseExpression('2x_1')).equivalent);
     assert(equivalentExpressions(parseExpression('x_1x_2'), mul(X1, X2)).equivalent);
     equal(toPlain(parseExpression('2x_1+x_1')), '3*x_1');
+  }),
+  test('Empty derivative input returns actionable feedback', () => {
+    const result = safeParse('   ');
+    equal(result.ok, false);
+    equal(result.error, 'Enter a derivative expression before applying it.');
   }),
   test('Basic symbolic derivative rules', () => {
     assert(equivalentExpressions(derivative(add(pow(X1, 2), X2), 'x_1'), mul(c(2), X1)).equivalent);
