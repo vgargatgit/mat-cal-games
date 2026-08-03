@@ -395,7 +395,7 @@ function renderBuildStage() {
     return h('button', {
       type: 'button', className: `derivative-tile${engine.state.selectedTile === tile.id ? ' selected' : ''}`,
       role: 'listitem', draggable: true, 'aria-pressed': engine.state.selectedTile === tile.id ? 'true' : 'false',
-      onClick: () => { engine.state.selectedTile = tile.id; appState.saveCurrentRound(currentRound, engine); render(); },
+      onClick: () => selectOrPlaceTile(tile.id),
       onDragstart: event => event.dataTransfer.setData('text/plain', tile.id),
     }, equation(tile.latex));
   }));
@@ -403,7 +403,7 @@ function renderBuildStage() {
   return h('article', { className: 'card stage-card' }, [
     h('p', { className: 'eyebrow', text: currentRound.mode === 'repair' ? 'Matrix repair mode' : 'Partial Derivative Freeze × Jacobian assembly' }),
     h('h2', { text: currentRound.mode === 'repair' ? 'Repair the incorrect Jacobian' : 'Calculate and place every active cell' }),
-    h('p', { text: 'Select a cell, then select a derivative tile or enter an equivalent expression. Value and position are validated independently.' }),
+    h('p', { text: 'Select a matrix cell, then choose a derivative tile to place it immediately. Repeat until every active cell is filled, then validate the Jacobian.' }),
     h('div', { className: 'board-layout' }, [h('div', {}, [grid, h('h3', { text: 'Derivative tile tray' }), tray]), workbench]),
     h('div', { className: 'actions' }, [button(currentRound.mode === 'repair' ? 'Validate repaired matrix' : 'Validate Jacobian', { primary: true, onClick: () => handleResult(engine.validateMatrix(), 'build') }), button('Reset active cells', { onClick: resetActiveCells })]),
   ]);
@@ -428,7 +428,7 @@ function renderWorkbench(selected) {
       button('Clear cell', { onClick: () => { engine.clearCell(row, column); appState.saveCurrentRound(currentRound, engine); render(); } }),
     ]),
     field('Enter an equivalent expression', typedInput, 'Safe parser: numbers, variables, +, −, *, powers, sin(), cos(), exp(), relu().'),
-    button('Apply typed derivative', { onClick: () => {
+    button('Apply typed derivative to this cell', { onClick: () => {
       const result = engine.placeText(row, column, typedInput.value);
       if (!result.ok) { engine.state.feedback = { type: 'bad', text: result.error }; render(); }
       else { engine.state.feedback = { type: 'good', text: `Placed ${typedInput.value} in row ${row + 1}, column ${column + 1}.` }; appState.saveCurrentRound(currentRound, engine); render(); }
@@ -437,6 +437,18 @@ function renderWorkbench(selected) {
   ];
   if (hintCount > 0) children.push(h('p', { className: 'feedback warning', text: hintText(hintCount, row, column) }));
   return h('aside', { className: 'workbench' }, children);
+}
+
+function selectOrPlaceTile(tileId) {
+  engine.state.selectedTile = tileId;
+  const selected = engine.state.selectedCell;
+  if (selected) {
+    placeTile(tileId, selected.row, selected.column);
+    return;
+  }
+  engine.state.feedback = { type: 'warning', text: 'Derivative selected. Now choose an active matrix cell to place it.' };
+  appState.saveCurrentRound(currentRound, engine);
+  render();
 }
 
 function placeTile(tileId, row, column) {

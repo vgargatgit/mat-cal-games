@@ -11,6 +11,7 @@ import { renderMath } from './math-renderer.js';
 import { applyAccessibilitySettings, announce } from './accessibility.js';
 
 const main = document.querySelector('#main');
+const DEBUG_MODE = new URLSearchParams(window.location.search).get('debug') === '1';
 let tutorialStep = 0;
 let questions = [];
 let roundState = freshRoundState();
@@ -116,7 +117,7 @@ function renderWelcome(state) {
 
 function renderMap(state) {
   const cards = LEVELS.map((level) => {
-    const locked = level.id > state.progress.unlockedLevel;
+    const locked = !DEBUG_MODE && level.id > state.progress.unlockedLevel;
     const completed = state.progress.completedLevels.includes(level.id);
     const best = state.progress.bestScores[level.id] ?? 0;
     const conceptScores = level.concepts.map((id) => state.mastery[id]?.masteryState ?? 'not-introduced');

@@ -163,6 +163,7 @@ export class ArcadeShell {
       this.activeModule = await game.load();
       if (this.currentGame?.id !== id) return;
       this.activeModule.create(this.gameHost, {
+        debugMode: this.debugMode,
         hintsUsed: () => this.hintsUsed,
         onHint: () => { this.hintsUsed += 1; this.progress.addHint(); },
         onReady: () => {

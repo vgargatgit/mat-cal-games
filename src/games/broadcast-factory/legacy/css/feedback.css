@@ -1,0 +1,14 @@
+.feedback-panel {
+  position: relative;
+  bottom: auto;
+  z-index: auto;
+}
+
+.feedback-panel .dismiss-feedback {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  padding: .35rem .55rem;
+  background: transparent;
+  border: 1px solid currentColor;
+}

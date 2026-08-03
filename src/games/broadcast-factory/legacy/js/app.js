@@ -20,6 +20,8 @@ import { announce, applySettings, focusHeading } from './accessibility.js';
 
 const main = document.getElementById('main-content');
 const settingsPanel = document.getElementById('settings-panel');
+const DEBUG_MODE = new URLSearchParams(window.location.search).get('debug') === '1';
+let feedbackDismissTimer = null;
 
 function restoreRuntimeFromPersisted() {
   const game = getGame();
@@ -69,6 +71,7 @@ function card(title, bodyClass = '') {
 }
 
 function setView(view) {
+  window.clearTimeout(feedbackDismissTimer);
   runtime.view = view;
   runtime.feedback = null;
   render();
@@ -196,7 +199,7 @@ function renderFactoryFloor() {
     [['Guided round','Hints and component prompts'],['Generated practice','Seeded values and target'],['Misconception repair','Find the first faulty reasoning step'],['Mastery challenge','Less scaffolding, full workflow']].forEach(([name, desc]) => {
       const item = element('div', 'mode-chip'); item.append(element('strong', '', name), element('span', '', desc)); modeList.append(item);
     });
-    const unlocked = level.id <= game.progress.currentLevel || game.progress.completedLevels.includes(level.id);
+    const unlocked = DEBUG_MODE || level.id <= game.progress.currentLevel || game.progress.completedLevels.includes(level.id);
     const startButton = button('Start factory order', { className: 'primary large', action: 'start-round', value: level.id });
     startButton.disabled = !unlocked;
     intro.append(modeList, startButton);
@@ -441,8 +444,9 @@ function labelledNumber(label, id, placeholder) {
   const wrap = element('label', 'field');
   wrap.append(element('span', '', label));
   const input = document.createElement('input');
-  input.type = 'number'; input.step = 'any'; input.id = id; input.name = id; input.placeholder = placeholder === '' ? '' : String(placeholder); input.inputMode = 'decimal';
+  input.type = 'number'; input.step = 'any'; input.id = id; input.name = id; input.placeholder = ''; input.inputMode = 'decimal';
   if (runtime.draft[id] !== undefined) input.value = String(runtime.draft[id]);
+  else if (placeholder !== '') input.value = String(placeholder);
   wrap.append(input);
   return wrap;
 }
@@ -530,6 +534,9 @@ function renderWorkedSolution(round) {
 function renderFeedback(feedback) {
   const box = element('aside', `feedback-panel ${feedback.correct ? 'correct' : 'incorrect'}`);
   box.setAttribute('role', 'status');
+  const dismiss = button('Dismiss', { className: 'dismiss-feedback', action: 'dismiss-feedback' });
+  dismiss.setAttribute('aria-label', 'Dismiss station feedback');
+  box.append(dismiss);
   box.append(element('h2', '', feedback.correct ? 'Station accepted' : 'Inspection failed'), element('p', '', feedback.message));
   if (feedback.misconception && MISCONCEPTIONS[feedback.misconception]) {
     const item = MISCONCEPTIONS[feedback.misconception];
@@ -662,12 +669,22 @@ function recordStationAttempt(stage, result) {
 }
 
 function feedback(result, successMessage, fallbackMessage) {
+  window.clearTimeout(feedbackDismissTimer);
   runtime.feedback = { ...result, message: result.correct ? successMessage : (result.message ?? fallbackMessage) };
   if (!result.correct) runtime.answerAttempt += 1;
   if (result.misconception && !runtime.misconceptionsSeen.includes(result.misconception)) runtime.misconceptionsSeen.push(result.misconception);
   persistRuntimeSnapshot();
   announce(runtime.feedback.message);
   render();
+  if (result.correct) {
+    const shownFeedback = runtime.feedback;
+    feedbackDismissTimer = window.setTimeout(() => {
+      if (runtime.feedback !== shownFeedback) return;
+      runtime.feedback = null;
+      persistRuntimeSnapshot();
+      render();
+    }, 5000);
+  }
 }
 
 function selectedStructure() { return document.querySelector('input[name="structure"]:checked')?.value ?? ''; }
@@ -772,6 +789,12 @@ function handleAction(action, value, target) {
   else if (action === 'check-forward') checkForward();
   else if (action === 'check-dependencies') checkDependencies();
   else if (action === 'check-derivative') checkDerivative();
+  else if (action === 'dismiss-feedback') {
+    window.clearTimeout(feedbackDismissTimer);
+    runtime.feedback = null;
+    persistRuntimeSnapshot();
+    render();
+  }
   else if (action === 'show-hint') {
     const hint = runtime.round.hints[Math.min(runtime.hintsUsed, runtime.round.hints.length - 1)]; runtime.hintsUsed += 1; runtime.feedback = { correct: false, message: hint }; persistRuntimeSnapshot(); announce(hint); render();
   }

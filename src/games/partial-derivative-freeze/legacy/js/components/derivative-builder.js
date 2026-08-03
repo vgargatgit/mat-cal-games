@@ -8,7 +8,8 @@ export function createDerivativeBuilder(round, initialValue = {}) {
   if (round.taskKind === 'gradient') return createGradientBuilder(round, wrapper, initialValue);
   if (round.taskKind === 'bug-hunter') return createBugBuilder(round, wrapper, initialValue);
 
-  const input = el('input', { className: 'derivative-input', type: 'text', inputmode: 'text', autocomplete: 'off', spellcheck: 'false', placeholder: 'Example: 2*x*y', 'aria-label': 'Final derivative expression' });
+  wrapper.append(el('p', { className: 'derivative-instruction', text: 'Enter only the simplified expression on the right side of the derivative—not the original equation or an equals sign.' }));
+  const input = el('input', { className: 'derivative-input', type: 'text', inputmode: 'text', autocomplete: 'off', spellcheck: 'false', placeholder: 'Example answer: 2*x*y', 'aria-label': 'Final derivative expression' });
   input.value = initialValue.finalExpression || '';
   const palette = el('div', { className: 'token-palette', 'aria-label': 'Expression token palette' });
   const variables = [...collectVariables(round.expression).keys()];
@@ -20,7 +21,7 @@ export function createDerivativeBuilder(round, initialValue = {}) {
     input.focus();
     input.setSelectionRange(start + token.length, start + token.length);
   }, { className: 'token-button' })));
-  wrapper.append(input, palette, el('p', { className: 'microcopy', text: 'Structured token buttons are provided; expert free entry is also accepted. Multiplication may be written as 2*x*y or 2xy.' }));
+  wrapper.append(input, palette, el('p', { className: 'microcopy', text: 'Use the token buttons or type the final derivative directly. Multiplication may be written as 2*x*y or 2xy.' }));
   return { element: wrapper, getValue: () => ({ finalExpression: input.value.trim() }) };
 }
 
