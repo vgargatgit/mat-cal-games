@@ -42,7 +42,7 @@ await call('Network.setCacheDisabled', { cacheDisabled: true });
 await call('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
 await call('Page.navigate', { url: baseUrl });
 await wait(900);
-await evaluate(`Object.keys(localStorage).filter(key=>key.startsWith('arcade.training.')).forEach(key=>localStorage.removeItem(key));localStorage.removeItem('matrix-calculus-arcade.progress.v1'); location.hash='#/home'; location.reload()`);
+await evaluate(`Object.keys(localStorage).filter(key=>key.startsWith('arcade.training.')).forEach(key=>localStorage.removeItem(key));localStorage.removeItem('matrix-calculus-arcade.progress.v1');localStorage.removeItem('matrix-calculus-arcade.tutorials.v1'); location.hash='#/home'; location.reload()`);
 await wait(700);
 await check('landing title renders', `document.querySelector('h1')?.textContent==='Matrix CalculusArcade'`);
 await check('landing has all primary actions', `['Start journey','New game','Free play','Progress','Settings','Credits'].every(label=>document.body.textContent.includes(label))`);
@@ -56,12 +56,18 @@ await check('only the first journey game is playable', `[...document.querySelect
 await screenshot('world-map-desktop');
 
 await evaluate(`document.querySelector('.map-node > button').click()`); await wait(1600);
-await check('shared HUD renders', `['Home','Restart','Hint','Mute'].every(label=>document.querySelector('.hud')?.textContent.includes(label))`);
+await check('shared HUD renders', `['Home','Restart','Rules','Hint','Mute'].every(label=>document.querySelector('.hud')?.textContent.includes(label))`);
 await check('first game lazy-loads', `document.querySelector('.game-frame')?.contentDocument?.title==='Shape Sorter'`);
 await check('duplicate game header is suppressed', `getComputedStyle(document.querySelector('.game-frame').contentDocument.querySelector('.topbar')).display==='none'`);
+await check('Shape Sorter receives the shared first-run tutorial', `document.querySelector('dialog[open] h2')?.textContent==='How to play Shape Sorter'&&document.body.textContent.includes('Sort the derivative by shape')&&document.querySelector('.game-frame').inert`);
+await screenshot('shape-sorter-tutorial-desktop');
+await evaluate(`document.querySelector('dialog[open] .icon-button').click()`); await wait(80);
 await screenshot('game-hud-desktop');
 
 await call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+await wait(120);
+await check('mobile HUD fits all five shared controls', `document.documentElement.scrollWidth<=document.documentElement.clientWidth&&document.querySelectorAll('.hud__actions .button').length===5`);
+await screenshot('game-hud-mobile');
 await evaluate(`location.hash='#/home'`); await wait(450);
 await check('mobile landing has no horizontal overflow', `document.documentElement.scrollWidth<=document.documentElement.clientWidth`);
 await screenshot('home-mobile');
@@ -76,24 +82,26 @@ await screenshot('chapter-iii-map-desktop');
 
 await evaluate(`document.querySelectorAll('.map-node > button')[8].click()`); await wait(450);
 await check('ReLU Gatekeeper loads as a native arcade game', `document.querySelector('.gatekeeper .relu-gate')&&document.querySelector('.game-frame')===null`);
-await check('ReLU tutorial opens on the first visit', `document.querySelector('dialog[open] .tutorial')&&document.querySelector('dialog h2')?.textContent==='How to play ReLU Gatekeeper'&&document.body.textContent.includes('Guard the backward gradient')`);
+await check('ReLU tutorial opens on the first visit and pauses play', `document.querySelector('dialog[open] .tutorial')&&document.querySelector('dialog h2')?.textContent==='How to play ReLU Gatekeeper'&&document.body.textContent.includes('Guard the backward gradient')&&document.querySelector('.gatekeeper').inert`);
 await screenshot('relu-gatekeeper-tutorial-desktop');
 await evaluate(`document.querySelector('.modal__actions .button--primary').click()`); await wait(80);
 await check('ReLU tutorial states both derivative rules', `document.querySelectorAll('.tutorial-rule').length===2&&document.body.textContent.includes('z > 0')&&document.body.textContent.includes('z ≤ 0')`);
 await evaluate(`for(let step=0;step<3;step+=1)document.querySelector('.modal__actions .button--primary').click()`); await wait(80);
-await check('ReLU tutorial can be replayed and stays dismissed after completion', `[...document.querySelectorAll('.training-intro .button')].some(button=>button.textContent.includes('How to play'))&&!document.querySelector('dialog[open]')&&JSON.parse(localStorage.getItem('arcade.training.relu-gatekeeper.v1')).tutorialSeen===true`);
+await check('ReLU tutorial can be replayed and resumes play after completion', `[...document.querySelectorAll('.hud .button')].some(button=>button.textContent.includes('Rules'))&&!document.querySelector('dialog[open]')&&!document.querySelector('.gatekeeper').inert&&JSON.parse(localStorage.getItem('matrix-calculus-arcade.tutorials.v1')).seen.includes('relu-gatekeeper')`);
 await evaluate(`document.querySelectorAll('.choice-grid .button')[1].click()`); await wait(150);
 await check('ReLU decision gives concise local-Jacobian feedback', `document.querySelector('.training-feedback--correct')?.textContent.includes('ReLU′')`);
 await screenshot('relu-gatekeeper-desktop');
 
 await evaluate(`location.hash='#/game/gradient-descent-navigator'`); await wait(450);
 await check('Gradient Descent Navigator renders linked live visualizations', `document.querySelector('.contour-map')&&document.querySelector('.loss-sparkline')&&document.querySelector('#eta-slider')`);
+await evaluate(`document.querySelector('dialog[open] .icon-button')?.click()`); await wait(50);
 await evaluate(`document.querySelector('#eta-slider').value='.25';document.querySelector('#eta-slider').dispatchEvent(new Event('input',{bubbles:true}));[...document.querySelectorAll('.navigator-controls button')].find(button=>button.textContent.includes('Take one')).click()`); await wait(700);
 await check('optimizer step updates the parameter trace', `document.querySelector('[data-trace]').getAttribute('points').trim().split(' ').length>=2`);
 await screenshot('gradient-descent-desktop');
 
 await evaluate(`location.hash='#/game/backpropagation-boss'`); await wait(450);
 await check('Boss Battle renders the tiny network and Jacobian tray', `document.querySelectorAll('.network-layer').length===5&&document.querySelectorAll('.transform-tile').length>=7`);
+await evaluate(`document.querySelector('dialog[open] .icon-button')?.click()`); await wait(50);
 await evaluate(`document.querySelector('[data-transform="loss-gradient"]').click();[...document.querySelectorAll('.boss-console .button')].find(button=>button.textContent.includes('Route gradient')).click()`); await wait(180);
 await check('correct boss move lights an edge and explains why', `document.querySelector('.training-feedback--correct')?.textContent.includes('first incoming gradient')`);
 await screenshot('backprop-boss-desktop');
@@ -125,6 +133,14 @@ await check('debug mode is visibly identified', `document.querySelector('.debug-
 await check('debug mode opens all eleven games without changing progress', `[...document.querySelectorAll('.map-node > button')].every(button=>!button.disabled)&&JSON.parse(localStorage.getItem('matrix-calculus-arcade.progress.v1')).unlockedLevel===0`);
 await evaluate(`location.hash='#/inside-backprop'`); await wait(250);
 await check('debug mode opens the post-boss laboratory', `document.querySelector('.backprop-sandbox')!==null`);
+
+const tutorialGames = ['shape-sorter', 'partial-derivative-freeze', 'build-jacobian', 'diagonal-detective', 'broadcast-factory', 'reduction-relay', 'chain-rule-circuit', 'jacobian-tetris', 'relu-gatekeeper', 'gradient-descent-navigator', 'backpropagation-boss'];
+for (const gameId of tutorialGames) {
+  await evaluate(`location.hash='#/game/${gameId}'`); await wait(220);
+  await evaluate(`if(!document.querySelector('dialog[open]'))[...document.querySelectorAll('.hud .button')].find(button=>button.textContent.includes('Rules')).click()`); await wait(40);
+  await check(`${gameId} exposes its shared tutorial`, `document.querySelector('dialog[open] h2')?.textContent.startsWith('How to play ')&&document.querySelector('.tutorial__progress')?.textContent.includes('Step 1 of 4')`);
+  await evaluate(`document.querySelector('dialog[open] .icon-button').click()`); await wait(30);
+}
 
 if (exceptions.length) throw new Error(`Browser exceptions:\n${exceptions.join('\n')}`);
 console.log('Browser smoke checks passed and screenshots captured.');

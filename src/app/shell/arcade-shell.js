@@ -3,6 +3,7 @@ import { ProgressStore } from '../progress/progress-store.js';
 import { AudioManager } from '../audio/audio-manager.js';
 import { ThemeManager } from '../theme/theme-manager.js';
 import { debugModeFromSearch, withoutDebugMode } from '../debug/debug-mode.js';
+import { TutorialStore } from '../tutorial/tutorial-store.js';
 import { GAME_CATALOG } from '../../games/catalog.js';
 import { Button } from '../../components/button.js';
 import { Card } from '../../components/card.js';
@@ -14,6 +15,8 @@ import { ProgressBar } from '../../components/progress-bar.js';
 import { ResultScreen } from '../../components/result-screen.js';
 import { Stars } from '../../components/stars.js';
 import { Toast } from '../../components/toast.js';
+import { Tutorial } from '../../components/tutorial.js';
+import { tutorialForGame } from '../../games/game-tutorials.js';
 import { clear, el } from '../../utils/dom.js';
 import { InsideBackprop } from './inside-backprop.js';
 
@@ -35,9 +38,11 @@ export class ArcadeShell {
     this.progress = new ProgressStore();
     this.audio = new AudioManager(this.progress.state.settings.muted);
     this.theme = new ThemeManager();
+    this.tutorials = new TutorialStore();
     this.router = new Router((route) => this.render(route));
     this.debugMode = debugModeFromSearch(window.location.search);
     this.activeModule = null;
+    this.activeTutorial = null;
     this.currentGame = null;
     this.freePlay = false;
     this.hintsUsed = 0;
@@ -56,7 +61,7 @@ export class ArcadeShell {
   }
 
   destroy() {
-    this.activeModule?.destroy(); this.router.destroy(); this.audio.destroy(); this.toast?.destroy();
+    this.activeTutorial?.close(); this.activeModule?.destroy(); this.router.destroy(); this.audio.destroy(); this.toast?.destroy();
   }
 
   renderHeader() {
@@ -74,6 +79,7 @@ export class ArcadeShell {
   go(route) { this.audio.play('transition'); this.router.navigate(route); }
 
   async render(route) {
+    this.activeTutorial?.close(); this.activeTutorial = null;
     this.activeModule?.destroy(); this.activeModule = null; this.currentGame = null;
     this.shell?.classList.toggle('arcade-shell--playing', route.name === 'game');
     clear(this.main);
@@ -115,7 +121,7 @@ export class ArcadeShell {
   confirmNewGame() {
     Modal({ title: 'Start a new journey?', content: el('p', {}, 'Arcade progress, stars, achievements, and individual campaign history will reset on this device.'), actions: [
       Button('Cancel', { onclick: () => document.querySelector('dialog[open]')?.close() }),
-      Button('Start new game', { kind: 'danger', onclick: () => { GAME_CATALOG.forEach((game) => localStorage.removeItem(game.storageKey)); this.progress.newGame(); document.querySelector('dialog[open]')?.close(); this.renderHome(); } }),
+      Button('Start new game', { kind: 'danger', onclick: () => { GAME_CATALOG.forEach((game) => localStorage.removeItem(game.storageKey)); this.tutorials.reset(); this.progress.newGame(); document.querySelector('dialog[open]')?.close(); this.renderHome(); } }),
     ] });
   }
 
@@ -151,7 +157,7 @@ export class ArcadeShell {
     this.currentGame = game; this.hintsUsed = 0; this.sessionStartedAt = Date.now();
     this.main.append(this.gameView = el('section', { className: 'game-view' },
       HUD({ game, stars: this.progress.state.stars[game.id] ?? 0, progress: 0, muted: this.audio.muted,
-        onHome: () => this.go('map'), onRestart: () => this.restartGame(), onHint: () => this.requestHint(), onMute: () => this.toggleMute() }),
+        onHome: () => this.go('map'), onRestart: () => this.restartGame(), onTutorial: () => this.showGameTutorial(game), onHint: () => this.requestHint(), onMute: () => this.toggleMute() }),
       this.gameHost = el('div', { className: 'game-host' }, LoadingScreen(game.title))));
     try {
       this.activeModule = await game.load();
@@ -159,7 +165,12 @@ export class ArcadeShell {
       this.activeModule.create(this.gameHost, {
         hintsUsed: () => this.hintsUsed,
         onHint: () => { this.hintsUsed += 1; this.progress.addHint(); },
-        onReady: () => this.audio.play('click'),
+        onReady: () => {
+          this.audio.play('click');
+          if (!this.tutorials.hasSeen(game.id)) requestAnimationFrame(() => {
+            if (this.currentGame?.id === game.id) this.showGameTutorial(game);
+          });
+        },
         onCorrect: () => this.audio.play('correct'),
         onIncorrect: () => this.audio.play('incorrect'),
         onProgress: (value) => this.updateGameProgress(value),
@@ -174,6 +185,19 @@ export class ArcadeShell {
     const value = Math.round((completed / total) * 100);
     const bar = this.gameView?.querySelector('.hud .progress-bar');
     if (bar) { bar.setAttribute('aria-valuenow', String(value)); bar.querySelector('span').style.width = `${value}%`; }
+  }
+
+  showGameTutorial(game) {
+    const tutorial = tutorialForGame(game.id);
+    if (!tutorial || this.activeTutorial?.open) return;
+    this.tutorials.markSeen(game.id);
+    this.activeModule?.pause();
+    const dialog = Tutorial({ title: `How to play ${game.title}`, steps: tutorial.steps });
+    this.activeTutorial = dialog;
+    dialog.addEventListener('close', () => {
+      if (this.activeTutorial === dialog) this.activeTutorial = null;
+      if (this.currentGame?.id === game.id) this.activeModule?.resume();
+    }, { once: true });
   }
 
   handleComplete(game, index, result) {

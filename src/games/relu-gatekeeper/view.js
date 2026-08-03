@@ -1,10 +1,9 @@
 import { Button } from '../../components/button.js';
-import { Tutorial } from '../../components/tutorial.js';
 import { el } from '../../utils/dom.js';
 import { GATE_STAGES, chainGradient, deadNeuronIndices, relu, reluDerivative } from './engine.js';
 import { announce, createTrainingStore, scoreStars } from '../training-runtime.js';
 
-const DEFAULTS = { schemaVersion: 1, stage: 0, question: 0, completedStages: [], score: 0, attempts: 0, hints: 0, tutorialSeen: false };
+const DEFAULTS = { schemaVersion: 1, stage: 0, question: 0, completedStages: [], score: 0, attempts: 0, hints: 0 };
 
 export function createReLUGatekeeper(container, context, metadata) {
   const store = createTrainingStore(metadata.storageKey, DEFAULTS);
@@ -12,7 +11,6 @@ export function createReLUGatekeeper(container, context, metadata) {
   let selected = new Set();
   let feedback = null;
   let paused = false;
-  let tutorialDialog = null;
   const timers = new Set();
   const root = el('section', { className: 'training-game gatekeeper', 'aria-label': 'ReLU Gatekeeper' });
   container.replaceChildren(root);
@@ -24,11 +22,7 @@ export function createReLUGatekeeper(container, context, metadata) {
     const question = stage.questions[state.question] ?? stage.questions[0];
     root.replaceChildren(
       el('div', { className: 'training-game__backdrop gatekeeper__backdrop', 'aria-hidden': 'true' }),
-      el('header', { className: 'training-intro' },
-        el('div', { className: 'training-intro__heading' },
-          el('div', {}, el('p', { className: 'eyebrow' }, `Chapter III · Trial ${state.stage + 1} of ${GATE_STAGES.length}`), el('h1', {}, stage.title)),
-          Button('How to play', { icon: '?', onclick: showTutorial, 'aria-label': 'Open ReLU Gatekeeper tutorial' })),
-        el('p', {}, stage.objective)),
+      el('header', { className: 'training-intro' }, el('p', { className: 'eyebrow' }, `Chapter III · Trial ${state.stage + 1} of ${GATE_STAGES.length}`), el('h1', {}, stage.title), el('p', {}, stage.objective)),
       el('div', { className: 'training-status' }, stat('Gate', `${state.question + 1}/${stage.questions.length}`), stat('Score', state.score), stat('Rule', 'diag(0 or 1)')),
       el('main', { className: 'gate-workspace' },
         el('section', { className: 'gate-scene' }, renderScene(question)),
@@ -123,60 +117,14 @@ export function createReLUGatekeeper(container, context, metadata) {
   }
 
   function isLastQuestion(stage) { return state.question >= stage.questions.length - 1; }
-  function showTutorial() {
-    if (tutorialDialog?.open) return;
-    state.tutorialSeen = true;
-    store.save(state);
-    tutorialDialog = Tutorial({ title: 'How to play ReLU Gatekeeper', steps: tutorialSteps() });
-    tutorialDialog.addEventListener('close', () => { tutorialDialog = null; }, { once: true });
-  }
   function hint() { const hintNode = root.querySelector('[data-hint]'); if (!hintNode) return false; hintNode.hidden = false; state.hints += 1; store.save(state); context.onHint?.(); announce(root, hintNode.textContent); return true; }
-  function restart() { const tutorialSeen = state.tutorialSeen; state = { ...store.reset(), tutorialSeen }; selected = new Set(); feedback = null; persist(); render(); }
-  function destroy() { tutorialDialog?.close(); timers.forEach(clearTimeout); timers.clear(); root.remove(); }
+  function restart() { state = store.reset(); selected = new Set(); feedback = null; persist(); render(); }
+  function destroy() { timers.forEach(clearTimeout); timers.clear(); root.remove(); }
   function pause() { paused = true; root.inert = true; }
   function resume() { paused = false; root.inert = false; }
 
-  const shouldShowTutorial = !state.tutorialSeen;
   persist(); render(); context.onReady?.();
-  if (shouldShowTutorial) requestAnimationFrame(showTutorial);
   return { destroy, pause, resume, restart, hint };
 }
 
 function stat(label, value) { return el('div', {}, el('span', {}, label), el('strong', {}, String(value))); }
-
-function tutorialSteps() {
-  return [
-    {
-      icon: '∇', title: 'Guard the backward gradient',
-      content: () => el('div', {},
-        el('p', {}, 'A gradient crystal approaches each ReLU gate from the output side. Your job is to predict whether that gradient can travel toward the earlier layer.'),
-        el('p', { className: 'tutorial__callout' }, 'Read the displayed pre-activation z, then choose Pass Gradient or Block Gradient.')),
-    },
-    {
-      icon: '0/1', title: 'Use the local ReLU derivative',
-      content: () => el('div', { className: 'tutorial-rules' },
-        rule('z > 0', 'ReLU′(z) = 1', 'Pass the gradient', 'pass'),
-        rule('z ≤ 0', 'ReLU′(z) = 0', 'Block the gradient', 'block'),
-        el('p', {}, 'This arcade uses ReLU′(0)=0. Remember: ReLU’s output can be any positive value, but its derivative here is only 0 or 1.')),
-    },
-    {
-      icon: 'J', title: 'Later trials combine gates',
-      content: () => el('ul', { className: 'tutorial__list' },
-        el('li', {}, el('strong', {}, 'Gate chains: '), 'the gradient reaches the input only when every gate has derivative 1. One zero blocks the serial path.'),
-        el('li', {}, el('strong', {}, 'Hidden layers: '), 'select every dead neuron—the neurons whose pre-activation is zero or negative.'),
-        el('li', {}, el('strong', {}, 'Small positives survive: '), 'z=0.01 still has derivative 1. It is not a dead neuron.')),
-    },
-    {
-      icon: '★', title: 'Answer, learn, and advance',
-      content: () => el('div', {},
-        el('p', {}, 'Choose an answer and read the one-sentence explanation. A correct answer lights the gate and unlocks the next challenge.'),
-        el('p', {}, 'Use the shared HUD Hint button whenever you need the current rule. Fewer attempts and fewer hints can earn more stars.'),
-        el('p', { className: 'tutorial__callout' }, 'Goal: restore all four trials and identify exactly where gradients pass or disappear.')),
-    },
-  ];
-}
-
-function rule(condition, derivative, action, kind) {
-  return el('div', { className: `tutorial-rule tutorial-rule--${kind}` },
-    el('strong', {}, condition), el('span', {}, derivative), el('b', {}, action));
-}

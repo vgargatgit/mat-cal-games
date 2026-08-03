@@ -73,7 +73,7 @@ Every cabinet exports the same lifecycle contract:
 }
 ```
 
-The shell lazy-loads a cabinet only after route and progression checks. The adapter mounts the original game in a same-origin frame to preserve its DOM, engine state, keyboard behavior, scoring, and mathematical validation. It suppresses redundant source chrome and reports campaign progress back to the shared HUD. Games never import or call the router.
+The shell lazy-loads a cabinet only after route and progression checks. The adapter mounts the original game in a same-origin frame to preserve its DOM, engine state, keyboard behavior, scoring, and mathematical validation. It suppresses redundant source chrome and reports campaign progress back to the shared HUD. Games never import or call the router. Every cabinet receives a shared first-run tutorial and a persistent HUD **Rules** control; the curriculum is documented in [docs/TUTORIALS.md](./docs/TUTORIALS.md).
 
 ## Progress and privacy
 
