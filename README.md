@@ -18,6 +18,16 @@ npm run serve
 
 Open `http://localhost:8080`. The application uses native ES modules and has no install or build step.
 
+### Debug mode
+
+Debug mode opens all eleven games, every encyclopedia entry, and the post-boss **Inside Backpropagation** laboratory without advancing saved journey progress:
+
+```bash
+npm run serve:debug
+```
+
+Open `http://localhost:8081`. The debug server redirects the root to `?debug=1#/map` and uses port 8081 so it can run beside the normal server. Debug mode is URL-scoped and visibly marked in the arcade header. It can also be enabled on an existing server by opening `http://localhost:8080/?debug=1#/map`.
+
 ```bash
 npm test       # shell and module-contract tests
 npm run check  # JavaScript syntax checks

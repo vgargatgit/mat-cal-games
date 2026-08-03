@@ -112,6 +112,14 @@ await check('five-layer product remains within the mobile page', `document.docum
 await check('reduced motion keeps the complete equation without movement', `parseFloat(getComputedStyle(document.querySelector('.chain-token--new')).animationDuration)<=.001&&document.querySelector('.chain-rule-equation').textContent.includes('J₅ᵀ')`);
 await screenshot('inside-backprop-mobile');
 
+await evaluate(`localStorage.removeItem('matrix-calculus-arcade.progress.v1')`);
+await call('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+await call('Page.navigate', { url: `${baseUrl}?debug=1#/map` }); await wait(650);
+await check('debug mode is visibly identified', `document.querySelector('.debug-badge')?.textContent.includes('all levels open')&&document.querySelector('h1')?.textContent==='Debug Map'`);
+await check('debug mode opens all eleven games without changing progress', `[...document.querySelectorAll('.map-node > button')].every(button=>!button.disabled)&&JSON.parse(localStorage.getItem('matrix-calculus-arcade.progress.v1')).unlockedLevel===0`);
+await evaluate(`location.hash='#/inside-backprop'`); await wait(250);
+await check('debug mode opens the post-boss laboratory', `document.querySelector('.backprop-sandbox')!==null`);
+
 if (exceptions.length) throw new Error(`Browser exceptions:\n${exceptions.join('\n')}`);
 console.log('Browser smoke checks passed and screenshots captured.');
 socket.close();

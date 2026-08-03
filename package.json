@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "test:browser": "node tests/browser-smoke.mjs",
-    "check": "find src tests -name '*.js' -print0 | xargs -0 -n1 node --check",
-    "serve": "python3 -m http.server 8080"
+    "check": "find src tests scripts -name '*.js' -o -name '*.mjs' | xargs -n1 node --check",
+    "serve": "python3 -m http.server 8080",
+    "serve:debug": "node scripts/serve.mjs --debug --port=8081"
   }
 }

@@ -2,6 +2,7 @@ import { Router } from '../router/router.js';
 import { ProgressStore } from '../progress/progress-store.js';
 import { AudioManager } from '../audio/audio-manager.js';
 import { ThemeManager } from '../theme/theme-manager.js';
+import { debugModeFromSearch, withoutDebugMode } from '../debug/debug-mode.js';
 import { GAME_CATALOG } from '../../games/catalog.js';
 import { Button } from '../../components/button.js';
 import { Card } from '../../components/card.js';
@@ -35,6 +36,7 @@ export class ArcadeShell {
     this.audio = new AudioManager(this.progress.state.settings.muted);
     this.theme = new ThemeManager();
     this.router = new Router((route) => this.render(route));
+    this.debugMode = debugModeFromSearch(window.location.search);
     this.activeModule = null;
     this.currentGame = null;
     this.freePlay = false;
@@ -45,7 +47,7 @@ export class ArcadeShell {
   start() {
     this.progress.begin();
     this.theme.apply(this.progress.state.settings);
-    this.root.append(this.shell = el('div', { className: 'arcade-shell' },
+    this.root.append(this.shell = el('div', { className: `arcade-shell${this.debugMode ? ' arcade-shell--debug' : ''}` },
       this.renderHeader(),
       this.main = el('main', { id: 'arcade-main', tabindex: '-1' }),
       el('div', { id: 'arcade-live', className: 'sr-only', 'aria-live': 'polite' })));
@@ -59,9 +61,11 @@ export class ArcadeShell {
 
   renderHeader() {
     return el('header', { className: 'arcade-header' },
-      el('button', { type: 'button', className: 'arcade-brand', onclick: () => this.go('home'), 'aria-label': 'Matrix Calculus Arcade home' },
-        el('span', { className: 'arcade-brand__mark', 'aria-hidden': 'true' }, '∂'),
-        el('span', {}, el('strong', {}, 'Matrix Calculus Arcade'), el('small', {}, 'Learn the shape. Trace the flow.'))),
+      el('div', { className: 'arcade-header__identity' },
+        el('button', { type: 'button', className: 'arcade-brand', onclick: () => this.go('home'), 'aria-label': 'Matrix Calculus Arcade home' },
+          el('span', { className: 'arcade-brand__mark', 'aria-hidden': 'true' }, '∂'),
+          el('span', {}, el('strong', {}, 'Matrix Calculus Arcade'), el('small', {}, 'Learn the shape. Trace the flow.'))),
+        this.debugMode ? el('span', { className: 'debug-badge', role: 'status' }, 'Debug · all levels open') : null),
       el('nav', { className: 'arcade-nav', 'aria-label': 'Arcade navigation' },
         this.navButton('World map', 'map'), this.navButton('Encyclopedia', 'encyclopedia'), this.navButton('Progress', 'progress'), this.navButton('Settings', 'settings')));
   }
@@ -117,9 +121,10 @@ export class ArcadeShell {
 
   renderMap(freePlay = false) {
     this.freePlay = freePlay;
+    const bypassLocks = freePlay || this.debugMode;
     const state = this.progress.state;
     const nodes = GAME_CATALOG.flatMap((game, index) => {
-      const unlocked = this.progress.isUnlocked(index, freePlay);
+      const unlocked = this.progress.isUnlocked(index, bypassLocks);
       const completed = state.completedGames.includes(game.id);
       const node = el('article', { className: `map-node ${completed ? 'map-node--complete' : ''} ${unlocked ? '' : 'map-node--locked'}` },
         el('div', { className: 'map-node__icon', 'aria-hidden': 'true' }, unlocked ? game.icon : '·'),
@@ -128,16 +133,21 @@ export class ArcadeShell {
       const before = index === 8 ? [el('section', { className: 'chapter-divider' }, el('p', { className: 'eyebrow' }, 'Graduation unlocked'), el('h2', {}, 'Chapter III — Learning to Train a Network'), el('p', {}, 'The rules are restored. Now use them to repair an ancient neural network.'))] : [];
       return [...before, node, ...(index === GAME_CATALOG.length - 1 ? [] : [el('div', { className: 'map-path', 'aria-hidden': 'true' }, '↓')])];
     });
+    const title = this.debugMode ? 'Debug Map' : freePlay ? 'Free Play' : 'World Map';
+    const subtitle = this.debugMode
+      ? 'Every cabinet and laboratory is open. Debug runs do not advance journey progress.'
+      : freePlay ? 'Every cabinet is open. Free Play does not bypass or alter your journey progress.' : 'Clear a module to unlock the next stop.';
     this.main.append(el('section', { className: 'page world-map' },
-      this.pageHeading(freePlay ? 'Free Play' : 'World Map', freePlay ? 'Every cabinet is open. Free Play does not bypass or alter your journey progress.' : 'Clear a module to unlock the next stop.'),
-      freePlay ? Button('Return to journey map', { onclick: () => this.go('map') }) : Button('Open Free Play', { onclick: () => this.go('map/free') }),
+      this.pageHeading(title, subtitle),
+      this.debugMode ? Button('Exit debug mode', { onclick: () => window.location.assign(withoutDebugMode(window.location.href)) })
+        : freePlay ? Button('Return to journey map', { onclick: () => this.go('map') }) : Button('Open Free Play', { onclick: () => this.go('map/free') }),
       el('div', { className: 'map-route' }, ...nodes)));
   }
 
   async renderGame(id) {
     const index = GAME_CATALOG.findIndex((entry) => entry.id === id);
     const game = GAME_CATALOG[index];
-    if (!game || !this.progress.isUnlocked(index, this.freePlay)) { this.go('map'); return; }
+    if (!game || !this.progress.isUnlocked(index, this.freePlay || this.debugMode)) { this.go('map'); return; }
     this.currentGame = game; this.hintsUsed = 0; this.sessionStartedAt = Date.now();
     this.main.append(this.gameView = el('section', { className: 'game-view' },
       HUD({ game, stars: this.progress.state.stars[game.id] ?? 0, progress: 0, muted: this.audio.muted,
@@ -168,8 +178,10 @@ export class ArcadeShell {
 
   handleComplete(game, index, result) {
     if (this.progress.state.completedGames.includes(game.id)) return;
-    this.progress.state.stats.totalPlaySeconds += Math.max(0, Math.round((Date.now() - this.sessionStartedAt) / 1000));
-    this.progress.completeGame(game, index, result);
+    if (!this.debugMode) {
+      this.progress.state.stats.totalPlaySeconds += Math.max(0, Math.round((Date.now() - this.sessionStartedAt) / 1000));
+      this.progress.completeGame(game, index, result);
+    }
     this.audio.play('victory'); Confetti(this.main);
     this.activeModule?.pause();
     setTimeout(() => {
@@ -222,7 +234,7 @@ export class ArcadeShell {
     const unlocked = new Set(this.progress.state.completedConcepts);
     this.main.append(el('section', { className: 'page' }, this.pageHeading('Concept Encyclopedia', 'Entries unlock as you clear related games.'),
       el('div', { className: 'encyclopedia-grid' }, ...ENCYCLOPEDIA.map((entry, index) => {
-        const open = unlocked.has(entry.requires) || index === 0;
+        const open = this.debugMode || unlocked.has(entry.requires) || index === 0;
         return Card(el('p', { className: 'eyebrow' }, open ? 'Unlocked' : 'Locked'), el('h2', {}, open ? entry.title : 'Unknown concept'),
           open ? el('div', {}, el('p', {}, entry.definition), el('h3', {}, 'Example'), el('p', {}, entry.example), el('h3', {}, 'Common mistake'), el('p', {}, entry.mistakes), el('p', {}, el('strong', {}, 'Related games: '), entry.games.join(', ')), el('a', { href: 'https://explained.ai/matrix-calculus/', target: '_blank', rel: 'noreferrer' }, 'Paper reference ↗')) : el('p', {}, `Clear ${entry.games[0]} to unlock this entry.`));
       }))));
@@ -250,7 +262,7 @@ export class ArcadeShell {
   }
 
   renderInsideBackprop() {
-    if (!this.progress.state.completedGames.includes('backpropagation-boss')) { this.go('map'); return; }
+    if (!this.debugMode && !this.progress.state.completedGames.includes('backpropagation-boss')) { this.go('map'); return; }
     this.main.append(InsideBackprop(() => this.go('mastery')));
   }
 
