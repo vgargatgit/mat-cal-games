@@ -39,6 +39,19 @@ The game teaches optimization intuition, not differentiation. Do not turn these 
 
 After each transformation, ask the learner to say whether they are routing a gradient to an earlier value or constructing a parameter-shaped gradient. This distinction resolves many transpose and outer-product errors.
 
+## Inside Backpropagation
+
+Ask learners to begin with three linear layers and predict the order in which the Jacobians will appear. Each backward click prepends exactly one local Jacobian to the accumulated product. Pause after the second click and ask why the newest term appears on the left.
+
+Then compare five-layer sigmoid and linear networks. The magnitude history is illustrative rather than a trained numerical network; its purpose is to make repeated local multiplication visible. Ask learners to identify the precise step where the classification changes, then connect that change to the accumulated product rather than to any single magical “backpropagation rule.”
+
+Useful prompts:
+
+1. “Which local Jacobian was just added?”
+2. “Why is it placed on this side of the existing product?”
+3. “What happened to the gradient after one more multiplication?”
+4. “How would reduced motion change the presentation without changing the mathematics?”
+
 ## Assessment
 
 A learner is ready to leave the chapter when they can narrate:

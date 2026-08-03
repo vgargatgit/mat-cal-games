@@ -15,3 +15,5 @@
 | ReLU mask belongs after W₁ᵀ | Boss phase III | Apply each local Jacobian in reverse forward order |
 | Broadcast backward is identity | shared-bias edge | Contributions from every reuse lane add |
 | Backpropagation is a special new rule | final boss phase | It is repeated local Jacobian composition plus parameter-gradient construction |
+| Jacobians can be multiplied in traversal order without considering matrix order | Inside Backpropagation accumulated equation | Each newly visited backward Jacobian acts on the left of the product already assembled |
+| Vanishing or growing happens all at once | Inside Backpropagation magnitude history | Every local multiplication changes the cumulative gradient; the history exposes the step where its behavior changes |

@@ -18,5 +18,14 @@ New reusable pieces are intentionally small:
   - inspectable forward/backward pass used by the game and tests.
 - `InsideBackprop`
   - configurable layer/activation explorer suitable for later initialization, normalization, and residual-network lessons.
+- `ChainRuleVisualizer`
+  - accessible tokenized chain-rule product;
+  - newly composed Jacobian animation;
+  - per-step magnitude and vanishing/surviving/growing history;
+  - wrapping presentation for products up to five layers.
+- `inside-backprop-model.js`
+  - pure forward/backward traversal state;
+  - correctly ordered symbolic Jacobian composition;
+  - depth/activation reset rules and gradient classification.
 
 Game-specific visual pieces—ReLU gates, contour maps, transformation tiles, gradient sockets, network layers, and boss-health display—share arcade tokens and CSS but remain within the Chapter III game stylesheet section because their semantics are not generic application UI.
