@@ -1,0 +1,31 @@
+
+> build-the-jacobian@1.0.0 test
+> node tests/node-tests.mjs
+
+PASS Shape rule: 2 outputs and 3 inputs gives 2×3
+PASS Shape rule: 3 outputs and 2 inputs gives 3×2
+PASS Entry mapping: J₂₃ is ∂f₂/∂x₃
+PASS Unicode math fallback keeps controlled LaTeX readable offline
+PASS Parser accepts implicit multiplication and equivalent sums
+PASS Basic symbolic derivative rules
+PASS Identity Jacobians I₂, I₃, I₄
+PASS Diagonal nonlinear Jacobian has zero off-diagonal entries
+PASS Sparse sample dependency matrix agrees with derivative zeros
+PASS Constant output produces a zero row
+PASS Unused input produces a zero column
+PASS Affine transformation Jacobian equals coefficient matrix W
+PASS Element-wise ReLU Jacobian evaluates to diag(1,0) away from zero
+PASS Evaluated Jacobian preserves symbolic dependency while value is zero
+PASS Numerical Jacobian matches symbolic Jacobian for polynomial sample
+PASS Symbolic equivalence accepts commuted and combined forms
+PASS Misconception: reversed rectangular dimensions
+PASS Misconception: transposed Jacobian is diagnosed
+PASS Misconception: correct derivative in wrong cell
+PASS Misconception: false diagonal assumption
+PASS Misconception: square does not imply identity
+PASS Misconception: evaluated zero is not no dependency
+PASS Progress schema validation accepts default and rejects invalid data
+PASS Generator creates deterministic output for the same seed
+PASS Generator invariants across 2,000 questions
+
+25/25 tests passed in 311.1 ms.

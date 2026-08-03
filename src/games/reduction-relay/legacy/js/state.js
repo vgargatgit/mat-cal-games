@@ -1,0 +1,2 @@
+import {loadState,saveState} from './storage.js';
+export const store={data:loadState(),listeners:new Set(),get game(){return this.data.learner.games.reductionRelay},subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)},notify(){saveState(this.data);this.listeners.forEach(f=>f(this.data))},setView(v){this.view=v;this.notify()},view:'welcome'};

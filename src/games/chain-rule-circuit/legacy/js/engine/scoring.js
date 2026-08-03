@@ -1,0 +1,2 @@
+export const SCORE_WEIGHTS={decomposition:20,graphNodes:15,graphConnections:20,forwardValues:15,localDerivatives:25,shapes:20,pathDetection:25,pathMultiplication:25,accumulation:25,incomingGradient:20,finalDerivative:30,explanation:15};
+export function calculateScore(stages,{firstAttempt=false,hintsUsed=0,streak=0}={}){let base=0;Object.entries(SCORE_WEIGHTS).forEach(([key,weight])=>{base+=(stages[key]??0)*weight;});const bonuses=(firstAttempt?20:0)+(hintsUsed===0?10:0)+Math.min(25,streak*5);return{base:Math.round(base),bonuses,total:Math.round(base+bonuses)};}

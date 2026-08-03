@@ -1,0 +1,1 @@
+export function feedbackHTML(result,message){return `<div class="feedback ${result?'correct':'incorrect'}" role="status"><strong>${result?'Relay complete':'Relay needs repair'}</strong><p>${message}</p></div>`}

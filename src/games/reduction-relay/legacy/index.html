@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Reduction Relay: an interactive matrix-calculus game about reductions and gradients.">
+  <title>Reduction Relay</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/relay.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/polish.css">
+  <script>
+    window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};
+  </script>
+  <script defer src="../../../assets/mathjax/tex-svg.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to game</a>
+  <header class="app-header">
+    <button class="brand" data-view="welcome" aria-label="Reduction Relay home"><span class="brand-mark" aria-hidden="true">Σ</span><span><strong>Reduction Relay</strong><small>Many lanes enter. One scalar finishes.</small></span></button>
+    <nav aria-label="Primary navigation"><button data-view="game">Relay</button><button data-view="tutorial">Tutorial</button><button data-view="notebook">Notebook</button><button data-view="progress">Progress</button></nav>
+    <div class="header-actions"><button data-action="font-scale" aria-pressed="false" title="Toggle larger text">A+</button><button data-action="motion" aria-pressed="false" title="Toggle reduced motion">Motion</button></div>
+  </header>
+  <main id="main-content" tabindex="-1"><div id="app"></div></main>
+  <div id="live-region" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+  <noscript>Reduction Relay requires JavaScript.</noscript>
+  <script type="module" src="js/app.js?v=20260803-1"></script>
+</body>
+</html>

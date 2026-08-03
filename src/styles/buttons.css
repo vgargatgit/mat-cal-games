@@ -1,0 +1,9 @@
+.button { display: inline-flex; gap: .5rem; align-items: center; justify-content: center; min-height: 44px; padding: .72rem 1.05rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 4px 0 var(--line); cursor: pointer; font-weight: 850; transition: transform .16s ease, box-shadow .16s ease, background .16s ease; }
+.button:hover:not(:disabled) { background: var(--surface-soft); transform: translateY(-1px); }
+.button:active:not(:disabled) { box-shadow: none; transform: translateY(3px); }
+.button:disabled { cursor: not-allowed; opacity: .6; }
+.button--primary { color: #fff; background: var(--primary); border-color: var(--primary-dark); box-shadow: 0 5px 0 var(--primary-dark); }
+.button--primary:hover:not(:disabled) { background: var(--primary-dark); }
+.button--danger { color: #fff; background: var(--danger); border-color: color-mix(in srgb, var(--danger) 65%, #000); }
+.icon-button { display: grid; width: 42px; aspect-ratio: 1; color: var(--ink); background: var(--surface-soft); border: 0; border-radius: 50%; cursor: pointer; place-items: center; font-size: 1.5rem; }
+.text-link { padding: .2rem 0; color: var(--ink-soft); background: none; border: 0; border-bottom: 1px solid currentColor; cursor: pointer; font-weight: 750; }

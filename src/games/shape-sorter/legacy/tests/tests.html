@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Shape Sorter Browser Smoke Test</title><style>body{font-family:system-ui;padding:2rem}li.pass{color:green}li.fail{color:crimson}</style></head>
+<body>
+<h1>Shape Sorter browser smoke tests</h1>
+<ul id="results"></ul>
+<script type="module">
+import { derivativeShape, shape, multiplyShapes } from '../js/engine/shape-math.js';
+import { generateLevelQuestions } from '../js/engine/question-generator.js';
+const cases = [
+  ['vector to scalar is 1×4', () => JSON.stringify(derivativeShape(1,4)) === JSON.stringify(shape(1,4))],
+  ['scalar to vector is 3×1', () => JSON.stringify(derivativeShape(3,1)) === JSON.stringify(shape(3,1))],
+  ['chain result is 2×4', () => JSON.stringify(multiplyShapes(shape(2,3), shape(3,4))) === JSON.stringify(shape(2,4))],
+  ['level generation works', () => generateLevelQuestions(5,20,123,{}).length === 20]
+];
+const list = document.querySelector('#results');
+for (const [name, fn] of cases) {
+  const item = document.createElement('li');
+  try { const ok = fn(); item.className = ok ? 'pass' : 'fail'; item.textContent = `${ok ? 'PASS' : 'FAIL'}: ${name}`; }
+  catch (error) { item.className = 'fail'; item.textContent = `FAIL: ${name}: ${error.message}`; }
+  list.append(item);
+}
+</script>
+</body>
+</html>

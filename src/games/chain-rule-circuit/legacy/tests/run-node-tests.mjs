@@ -1,0 +1,13 @@
+import './graph-tests.js';
+import './shape-tests.js';
+import './chain-rule-tests.js';
+import './gradient-accumulation-tests.js';
+import './validator-tests.js';
+import './generator-tests.js';
+import './mastery-tests.js';
+import './storage-tests.js';
+import './numeric-tests.js';
+import './curriculum-tests.js';
+import './focused-stage-tests.js';
+import {run} from './test-utils.js';
+const results=await run();results.forEach(result=>console.log(`${result.passed?'✓':'✗'} ${result.name}${result.error?` — ${result.error}`:''}`));const failed=results.filter(result=>!result.passed);console.log(`\n${results.length-failed.length}/${results.length} tests passed.`);if(failed.length)process.exitCode=1;

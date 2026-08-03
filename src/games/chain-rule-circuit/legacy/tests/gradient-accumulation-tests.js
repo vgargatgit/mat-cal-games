@@ -1,0 +1,6 @@
+import {test,equal,ok} from './test-utils.js';
+import {propagateGradientBackward} from '../js/math/gradient-accumulator.js';
+const graph={nodes:['x','u','v','w','y'].map(id=>({id})),edges:[{from:'x',to:'u',localDerivative:{value:4}},{from:'u',to:'v',localDerivative:{value:1}},{from:'u',to:'w',localDerivative:{value:3}},{from:'v',to:'y',localDerivative:{value:1}},{from:'w',to:'y',localDerivative:{value:1}}]};
+test('shared intermediate preserves both gradient contributions',()=>{const gradients=propagateGradientBackward(graph,'y',1);equal(gradients.u.incomingGradientContributions.length,2);equal(gradients.u.accumulatedGradient,4);equal(gradients.x.accumulatedGradient,16);});
+test('zero ReLU derivative blocks without removing edge',()=>{const relu={nodes:[{id:'z'},{id:'a'},{id:'L'}],edges:[{from:'z',to:'a',localDerivative:{value:0}},{from:'a',to:'L',localDerivative:{value:4}}]};const result=propagateGradientBackward(relu,'L',1);equal(relu.edges.length,2);equal(result.z.accumulatedGradient,0);});
+test('incoming gradient multiplies local derivative',()=>{const simple={nodes:[{id:'x'},{id:'y'}],edges:[{from:'x',to:'y',localDerivative:{value:5}}]};equal(propagateGradientBackward(simple,'y',3).x.accumulatedGradient,15);});

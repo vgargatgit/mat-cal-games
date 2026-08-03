@@ -1,0 +1,33 @@
+@media (max-width: 1100px) {
+  .welcome-hero { grid-template-columns: 1fr; }
+  .freezer-illustration { min-height: 410px; }
+  .welcome-stats, .dashboard-overview { grid-template-columns: repeat(2, 1fr); }
+  .principle-grid { grid-template-columns: repeat(2, 1fr); }
+  .freezer-zones { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 820px) {
+  .site-header { align-items: flex-start; }
+  .site-header nav { justify-content: flex-end; }
+  .game-layout { grid-template-columns: 1fr; }
+  .level-sidebar { position: static; max-height: none; }
+  .level-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .notebook-grid { grid-template-columns: 1fr; }
+  .choice-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .site-header { position: static; flex-direction: column; }
+  .site-header nav { width: 100%; justify-content: space-between; }
+  .welcome-view { padding-top: 2rem; }
+  .welcome-copy h1 { font-size: 3.2rem; }
+  .welcome-stats, .dashboard-overview, .principle-grid { grid-template-columns: 1fr; }
+  .freezer-zones, .level-list { grid-template-columns: 1fr; }
+  .freezer-illustration { min-height: 360px; padding: 1rem; }
+  .specimen span { font-size: 3rem; }
+  .lab-arrow { display: none; }
+  .choice-grid { grid-template-columns: 1fr; }
+  .mastery-row { grid-template-columns: 1fr 1fr; }
+  .mastery-row > :nth-child(3), .mastery-row > :nth-child(4) { text-align: right; }
+  .score-chip { position: static; display: inline-flex; margin-top: 0.8rem; }
+}

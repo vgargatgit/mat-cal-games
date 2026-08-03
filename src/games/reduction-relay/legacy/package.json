@@ -1,0 +1,1 @@
+{"type":"module","private":true,"scripts":{"test":"node tests/run-tests.mjs","check":"find js tests -name '*.js' -o -name '*.mjs' | xargs -n1 node --check"}}

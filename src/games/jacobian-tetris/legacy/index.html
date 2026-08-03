@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Jacobian Tetris — an interactive matrix-calculus game about Jacobian shape, sparsity, chain rule, and reverse mode.">
+  <meta name="theme-color" content="#4b4fa7">
+  <link rel="icon" href="data:,">
+  <title>Jacobian Tetris</title>
+  <link rel="stylesheet" href="css/styles.css?v=input-flow-2">
+</head>
+<body>
+<a class="skip-link" href="#game-main">Skip to game</a>
+<div class="app-shell">
+<header class="topbar">
+  <button class="brand" type="button" aria-label="Jacobian Tetris home">
+    <span class="brand-mark" aria-hidden="true">∂</span>
+    <span><strong>Jacobian Tetris</strong><small>Matrix calculus workshop · Game 8</small></span>
+  </button>
+  <nav class="topnav" aria-label="Game controls">
+    <button id="helpBtn">Help</button>
+    <button id="motionBtn" aria-pressed="false">Reduced motion</button>
+    <button id="soundBtn" aria-pressed="false">Sound</button>
+    <button id="resetBtn">Reset level</button>
+  </nav>
+</header>
+<section class="hero-strip">
+  <div><p class="eyebrow">JACOBIAN ASSEMBLY BAY</p><h1>Every output gets a row.<br>Every input gets a column.</h1></div>
+  <div class="orientation-machine" role="img" aria-label="Outputs enter as rows and inputs enter as columns to form a Jacobian board">
+    <span>OUTPUTS ↓</span><strong>J</strong><span>← INPUTS</span>
+  </div>
+</section>
+<section class="status-strip" aria-label="Game status">
+  <div><span>Level</span><strong id="levelStatus">1 / 12</strong></div>
+  <div><span>Operation</span><strong id="operationStatus">y = x²</strong></div>
+  <div><span>Score</span><strong id="scoreStatus">0</strong></div>
+  <div><span>Mistakes</span><strong id="mistakeStatus">0</strong></div>
+  <div class="mastery"><span>Mastery</span><div class="meter"><i></i></div></div>
+</section>
+<main id="game-main" class="game-layout" tabindex="-1">
+  <aside class="panel work-panel">
+    <div class="panel-title"><span class="panel-icon">01</span><h2>Work Order</h2></div>
+    <div id="workOrder"></div>
+    <div class="rule-card"><strong>ROWS → OUTPUTS</strong><strong>COLUMNS → INPUTS</strong></div>
+    <div id="phaseStepper" class="phase-stepper"></div>
+    <div id="hintArea" class="hint-area" aria-live="polite"></div>
+    <button id="hintBtn" class="btn wide">Request staged hint</button>
+  </aside>
+
+  <section class="panel board-panel">
+    <div class="panel-title"><span class="panel-icon">02</span><h2>Jacobian Assembly Board</h2><span id="boardShapeBadge" class="badge">? × ?</span></div>
+    <div id="shapeBuilder" class="shape-builder"></div>
+    <div id="boardArea" class="board-area"></div>
+    <div id="chainArea" class="chain-area"></div>
+    <div id="feedback" class="feedback neutral" aria-live="assertive"></div>
+  </section>
+
+  <aside class="panel pieces-panel">
+    <div class="panel-title"><span class="panel-icon">03</span><h2>Piece Queue</h2></div>
+    <div id="pieceQueue" class="piece-queue"></div>
+    <div id="valueTray" class="value-tray"></div>
+    <div class="control-stack">
+      <button id="checkBtn" class="btn btn-primary">Check current phase</button>
+      <button id="undoBtn" class="btn">Undo</button>
+      <button id="clearBtn" class="btn">Clear phase</button>
+      <button id="solutionBtn" class="btn">Show solution</button>
+      <button id="nextBtn" class="btn btn-success" disabled>Next level</button>
+    </div>
+    <details class="keyboard-help"><summary>Keyboard controls</summary><p><kbd>Enter</kbd> check · <kbd>U</kbd> undo</p></details>
+  </aside>
+</main>
+<section class="campaign-footer">
+  <button id="prevLevelBtn" class="btn">← Previous</button>
+  <div id="levelDots" class="level-dots"></div>
+  <button id="practiceBtn" class="btn">Seeded practice</button>
+  <button id="testsBtn" class="btn">Developer tests</button>
+  <button id="nextLevelBtn" class="btn">Next →</button>
+</section>
+<footer><span>Numerator layout: output components are rows; differentiation-input components are columns.</span><button id="resetProgressBtn" class="link-button">Reset all progress</button></footer>
+<dialog id="modal"><form method="dialog"><button class="modal-close" aria-label="Close">×</button><div id="modalBody"></div></form></dialog>
+<div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+</div>
+<script type="module" src="js/app.js?v=input-flow-2"></script>
+</body>
+</html>

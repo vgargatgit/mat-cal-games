@@ -1,0 +1,114 @@
+:root {
+  color-scheme: light;
+
+  --ink: #18324a;
+  --ink-2: #294c69;
+  --muted: #5d7183;
+  --paper: #f7f3e9;
+  --paper-deep: #ece4d5;
+  --panel: #fffdf8;
+  --panel-2: #f7fbff;
+  --panel-blue: #eaf4ff;
+  --panel-orange: #fff0df;
+  --panel-green: #eaf7ef;
+  --panel-purple: #f2ecff;
+  --panel-yellow: #fff6d8;
+
+  --orange: #f28c28;
+  --orange-dark: #bd5f0c;
+  --blue: #2b7de9;
+  --blue-dark: #1759ad;
+  --green: #2b9a66;
+  --green-dark: #176a43;
+  --purple: #7a4fcf;
+  --purple-dark: #543392;
+  --yellow: #f2c84b;
+  --red: #d45b3e;
+  --red-dark: #983b2b;
+  --cyan: #1e9fa4;
+
+  --line: #ccd8e2;
+  --line-strong: #91a6b7;
+  --outline: #18324a;
+  --focus: #005fcc;
+  --shadow: 0 14px 36px rgba(24, 50, 74, .12);
+  --shadow-small: 0 7px 18px rgba(24, 50, 74, .10);
+  --offset-shadow: 5px 5px 0 rgba(24, 50, 74, .18);
+  --radius-sm: 11px;
+  --radius: 18px;
+  --radius-lg: 28px;
+
+  --font-body: Inter, ui-rounded, "SF Pro Rounded", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-display: ui-rounded, "SF Pro Rounded", "Avenir Next", Inter, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --space-1: .35rem;
+  --space-2: .6rem;
+  --space-3: .9rem;
+  --space-4: 1.25rem;
+  --space-5: 1.75rem;
+  --space-6: 2.4rem;
+  --space-7: 3.5rem;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  line-height: 1.55;
+  background:
+    radial-gradient(circle at 7% 7%, rgba(242, 140, 40, .14), transparent 20rem),
+    radial-gradient(circle at 92% 10%, rgba(43, 125, 233, .12), transparent 24rem),
+    radial-gradient(circle at 82% 88%, rgba(43, 154, 102, .10), transparent 23rem),
+    linear-gradient(180deg, #fbf8f0 0%, var(--paper) 55%, #f1eee5 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .22;
+  background-image: radial-gradient(rgba(24, 50, 74, .22) .65px, transparent .65px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom, #000, transparent 70%);
+}
+
+body.large-text {
+  font-size: 1.12rem;
+}
+
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration: .001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection {
+  color: var(--ink);
+  background: #ffe39b;
+}
+
+code,
+pre,
+.math-label {
+  font-family: var(--font-mono);
+}
+
+mjx-container {
+  color: inherit;
+}

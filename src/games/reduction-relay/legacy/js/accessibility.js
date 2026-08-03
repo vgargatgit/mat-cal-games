@@ -1,0 +1,1 @@
+export function announce(message){const el=document.getElementById('live-region');if(el){el.textContent='';requestAnimationFrame(()=>el.textContent=message)}}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Shape Sorter: an interactive matrix-calculus game for gradients, Jacobians, transposes, and chain-rule shapes.">
+  <title>Shape Sorter</title>
+  <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <button class="brand" type="button" data-action="home" aria-label="Go to welcome screen">
+        <span class="brand-mark" aria-hidden="true">∂</span>
+        <span><strong>Shape Sorter</strong><small>Matrix calculus workshop</small></span>
+      </button>
+      <nav class="topnav" aria-label="Primary navigation">
+        <button type="button" data-nav="map">Learning map</button>
+        <button type="button" data-nav="notebook">Notebook</button>
+        <button type="button" data-nav="progress">Progress</button>
+        <button type="button" data-action="settings" aria-label="Open accessibility settings">Aa</button>
+      </nav>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  </div>
+  <noscript>This game requires JavaScript.</noscript>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
