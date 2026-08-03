@@ -76,6 +76,12 @@ await screenshot('chapter-iii-map-desktop');
 
 await evaluate(`document.querySelectorAll('.map-node > button')[8].click()`); await wait(450);
 await check('ReLU Gatekeeper loads as a native arcade game', `document.querySelector('.gatekeeper .relu-gate')&&document.querySelector('.game-frame')===null`);
+await check('ReLU tutorial opens on the first visit', `document.querySelector('dialog[open] .tutorial')&&document.querySelector('dialog h2')?.textContent==='How to play ReLU Gatekeeper'&&document.body.textContent.includes('Guard the backward gradient')`);
+await screenshot('relu-gatekeeper-tutorial-desktop');
+await evaluate(`document.querySelector('.modal__actions .button--primary').click()`); await wait(80);
+await check('ReLU tutorial states both derivative rules', `document.querySelectorAll('.tutorial-rule').length===2&&document.body.textContent.includes('z > 0')&&document.body.textContent.includes('z ≤ 0')`);
+await evaluate(`for(let step=0;step<3;step+=1)document.querySelector('.modal__actions .button--primary').click()`); await wait(80);
+await check('ReLU tutorial can be replayed and stays dismissed after completion', `[...document.querySelectorAll('.training-intro .button')].some(button=>button.textContent.includes('How to play'))&&!document.querySelector('dialog[open]')&&JSON.parse(localStorage.getItem('arcade.training.relu-gatekeeper.v1')).tutorialSeen===true`);
 await evaluate(`document.querySelectorAll('.choice-grid .button')[1].click()`); await wait(150);
 await check('ReLU decision gives concise local-Jacobian feedback', `document.querySelector('.training-feedback--correct')?.textContent.includes('ReLU′')`);
 await screenshot('relu-gatekeeper-desktop');

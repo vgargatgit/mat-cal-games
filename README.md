@@ -44,7 +44,7 @@ src/
 │   ├── router/       # shell-owned hash navigation
 │   ├── shell/        # landing, map, game host, settings, results, mastery
 │   └── theme/        # light, dark, contrast, and reduced-motion preferences
-├── components/       # buttons, cards, dialog/modal, HUD, stars, toast, hint,
+├── components/       # buttons, cards, dialog/modal, tutorial, HUD, stars, toast, hint,
 │                     # progress, confetti, results, loading, achievements,
 │                     # and the chain-rule product visualizer
 ├── games/

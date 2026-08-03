@@ -5,3 +5,26 @@
 .modal__header h2 { margin: 0; }
 .modal__content { padding: 1.4rem 0; color: var(--ink-soft); }
 .modal__actions { display: flex; flex-wrap: wrap; gap: .7rem; justify-content: flex-end; }
+.tutorial__progress { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.2rem; color: var(--ink-soft); font-size: .78rem; }
+.tutorial__progress > span { display: flex; gap: .3rem; }
+.tutorial__dot { display: block; width: 9px; aspect-ratio: 1; background: var(--line); border-radius: 50%; }
+.tutorial__dot--active { background: var(--primary); }
+.tutorial__step { display: grid; grid-template-columns: auto 1fr; gap: 1rem; min-height: 220px; align-items: start; }
+.tutorial__step h3 { margin: 0 0 .65rem; color: var(--ink); font-size: 1.35rem; }
+.tutorial__step p { margin: 0 0 .75rem; }
+.tutorial__icon { display: grid; width: 58px; aspect-ratio: 1; color: #fff; background: var(--primary); border-radius: 16px; place-items: center; font-family: ui-monospace, monospace; font-size: 1.15rem; font-weight: 900; box-shadow: 0 7px 0 var(--primary-dark); }
+.tutorial__callout { padding: .75rem; color: var(--ink)!important; background: var(--surface-soft); border-left: 4px solid var(--accent); border-radius: 9px; font-weight: 750; }
+.tutorial__list { display: grid; gap: .75rem; margin: 0; padding-left: 1.15rem; }
+.tutorial-rules { display: grid; gap: .6rem; }
+.tutorial-rule { display: grid; grid-template-columns: .7fr 1fr 1.2fr; gap: .5rem; align-items: center; padding: .65rem .75rem; color: var(--ink); background: var(--surface-soft); border: 1px solid var(--line); border-radius: 10px; }
+.tutorial-rule b { text-align: right; }
+.tutorial-rule--pass { border-color: var(--success); }
+.tutorial-rule--pass b { color: var(--success); }
+.tutorial-rule--block { border-color: var(--danger); }
+.tutorial-rule--block b { color: var(--danger); }
+@media (max-width: 520px) {
+  .tutorial__step { grid-template-columns: 1fr; }
+  .tutorial__icon { width: 48px; }
+  .tutorial-rule { grid-template-columns: 1fr; }
+  .tutorial-rule b { text-align: left; }
+}

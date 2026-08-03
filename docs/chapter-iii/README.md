@@ -14,7 +14,7 @@ The chapter deliberately avoids presenting backpropagation as a new algorithm to
 
 ### ReLU Gatekeeper
 
-Learners distinguish ReLU output from ReLU derivative, predict whether single and serial gradient paths survive, and identify dead neurons from pre-activations. The final explanation reconnects the mechanic to a diagonal activation Jacobian containing zeros and ones.
+Learners begin with a four-step, replayable tutorial covering the mission, the two local derivative rules, chain and hidden-layer rounds, feedback, hints, and stars. They then distinguish ReLU output from ReLU derivative, predict whether single and serial gradient paths survive, and identify dead neurons from pre-activations. The final explanation reconnects the mechanic to a diagonal activation Jacobian containing zeros and ones.
 
 ### Gradient Descent Navigator
 
@@ -31,6 +31,7 @@ The unlocked sandbox varies depth from one to five layers and switches among ReL
 ## Screenshots
 
 - `docs/screenshots/chapter-iii-map-desktop.png`
+- `docs/screenshots/relu-gatekeeper-tutorial-desktop.png`
 - `docs/screenshots/relu-gatekeeper-desktop.png`
 - `docs/screenshots/gradient-descent-desktop.png`
 - `docs/screenshots/backprop-boss-desktop.png`

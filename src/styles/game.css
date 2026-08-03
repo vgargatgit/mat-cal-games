@@ -42,6 +42,9 @@
 /* Chapter III — native training games */
 .training-game { min-height: calc(100dvh - 76px); padding: clamp(1rem, 3vw, 2rem); color: var(--ink); background: var(--paper); overflow: hidden; }
 .training-intro { width: min(1180px, 100%); margin: 0 auto 1rem; }
+.training-intro__heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.training-intro__heading .eyebrow { margin-bottom: .2rem; }
+.training-intro__heading .button { flex: none; }
 .training-intro h1, .boss-header h1 { margin-bottom: .55rem; font-size: clamp(2rem, 4vw, 3.7rem); }
 .training-intro > p:last-child, .boss-header p:last-child { color: var(--ink-soft); }
 .training-status { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; width: min(1180px, 100%); margin: 0 auto 1rem; }
