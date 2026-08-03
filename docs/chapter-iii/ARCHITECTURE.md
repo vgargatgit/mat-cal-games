@@ -13,6 +13,16 @@ module.js
 
 The engines are independently importable in Node tests. The view layer owns only interaction state and rendering.
 
+The post-boss sandbox follows the same split without pretending to be a scored game:
+
+```text
+inside-backprop.js
+  ├── inside-backprop-model.js     pure traversal and gradient history
+  └── ChainRuleVisualizer          reusable symbolic product renderer
+```
+
+`inside-backprop-model.js` is the authority for depths, activation metadata, traversal boundaries, Jacobian order, cumulative expressions, and illustrative magnitude classification. The DOM view only coordinates controls and network presentation.
+
 ## State
 
 Each game uses one namespaced versioned localStorage record:
@@ -30,6 +40,7 @@ The shell remains the authority for chapter unlocking, stars, achievements, best
 - ReLU particles and edge glows use transform/opacity CSS animation.
 - Navigator creates its SVG scene once per interaction state and mutates rover, arrow, contour trace, and loss trace attributes during `requestAnimationFrame` movement.
 - Boss state changes only after learner actions; no idle render loop runs.
+- Inside Backpropagation uses short CSS animations triggered by discrete learner steps. It has no continuous animation loop or background timer.
 - `destroy()` cancels timers or animation frames and removes the mounted root.
 - Game modules remain lazy imports through the existing catalog.
 
@@ -39,6 +50,7 @@ The shell remains the authority for chapter unlocking, stars, achievements, best
 - Decisions use native buttons, sliders, labels, and live regions.
 - Visual states also have text labels and never rely on color alone.
 - The shared reduced-motion rule disables particles, pulses, and transitions.
+- The chain-rule equation has a separate screen-reader label, and every completed multiplication is announced through a polite live region.
 - All games preserve visible focus and function at narrow mobile widths.
 
 ## Numerical network

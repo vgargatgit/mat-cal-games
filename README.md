@@ -8,7 +8,7 @@ The final arc is **Chapter III — Learning to Train a Network**:
 2. **Gradient Descent Navigator** — optimization direction, learning rate, plateaus, local minima, and overshooting.
 3. **Backpropagation Boss Battle** — a complete 2→3→1 backward pass reconstructed from local Jacobians.
 
-Completing the boss unlocks the **Inside Backpropagation** depth-and-activation sandbox.
+Completing the boss unlocks the **Inside Backpropagation** depth-and-activation sandbox. Its backward controls animate the chain rule one local Jacobian at a time and retain a visible history of gradient magnitudes.
 
 ## Run locally
 
@@ -35,7 +35,8 @@ src/
 │   ├── shell/        # landing, map, game host, settings, results, mastery
 │   └── theme/        # light, dark, contrast, and reduced-motion preferences
 ├── components/       # buttons, cards, dialog/modal, HUD, stars, toast, hint,
-│                     # progress, confetti, results, loading, achievements
+│                     # progress, confetti, results, loading, achievements,
+│                     # and the chain-rule product visualizer
 ├── games/
 │   ├── game-data.js  # curriculum and pedagogy metadata
 │   ├── catalog.js    # lazy module imports

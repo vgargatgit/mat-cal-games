@@ -26,7 +26,7 @@ Learners manually route a real backward pass through a 2→3→1 network. Each c
 
 ### Inside Backpropagation
 
-The unlocked sandbox varies depth from one to five layers and switches among ReLU, sigmoid, tanh, and linear activations. Forward and backward stepping highlights the active local Jacobian and labels the illustrative gradient product as vanishing, surviving, or growing.
+The unlocked sandbox varies depth from one to five layers and switches among ReLU, sigmoid, tanh, and linear activations. Forward stepping follows value flow. Each backward step animates one local Jacobian into the correctly ordered chain-rule product, lights the matching network edge, and records the new illustrative gradient magnitude as vanishing, surviving, or growing. The completed expression visibly resolves from the output loss gradient to the input gradient.
 
 ## Screenshots
 
@@ -35,3 +35,4 @@ The unlocked sandbox varies depth from one to five layers and switches among ReL
 - `docs/screenshots/gradient-descent-desktop.png`
 - `docs/screenshots/backprop-boss-desktop.png`
 - `docs/screenshots/inside-backprop-desktop.png`
+- `docs/screenshots/inside-backprop-mobile.png`

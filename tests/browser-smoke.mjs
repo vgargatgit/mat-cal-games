@@ -98,7 +98,19 @@ await check('mastery synthesis renders after all games', `document.querySelector
 await screenshot('mastery-desktop');
 await evaluate(`location.hash='#/inside-backprop'`); await wait(350);
 await check('Inside Backpropagation sandbox unlocks after the boss', `document.querySelector('.backprop-sandbox')&&document.querySelectorAll('.sandbox-layer').length>=3`);
+await check('sandbox starts with an uncomposed output gradient', `document.querySelector('.chain-rule-equation')?.textContent.trim()==='∇output L'`);
+await evaluate(`document.querySelector('[data-action="backward"]').click()`); await wait(120);
+await check('one backward step animates one local Jacobian', `document.querySelector('.chain-token--new')?.textContent==='J₃ᵀ'&&document.querySelectorAll('.sandbox-jacobian--complete').length===1`);
+await evaluate(`document.querySelector('[data-action="backward"]').click();document.querySelector('[data-action="backward"]').click()`); await wait(120);
+await check('backward product reaches the input in correct order', `document.querySelector('.chain-rule-equation')?.textContent.replaceAll('×','').replaceAll(/\\s/g,'')==='J₁ᵀJ₂ᵀJ₃ᵀ∇outputL'&&document.querySelector('[data-action="backward"]').disabled`);
+await check('gradient history records every local multiplication', `document.querySelectorAll('.gradient-history li').length===4&&document.body.textContent.includes('Input gradient assembled')`);
+await evaluate(`window.scrollTo({top:document.querySelector('.sandbox-network').offsetTop-90,left:0,behavior:'instant'})`); await wait(80);
 await screenshot('inside-backprop-desktop');
+await call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+await evaluate(`(()=>{const slider=document.querySelector('#sandbox-depth');slider.value='5';slider.dispatchEvent(new Event('input',{bubbles:true}));for(let index=0;index<5;index+=1)document.querySelector('[data-action="backward"]').click();document.documentElement.classList.add('reduce-motion');window.scrollTo({top:document.querySelector('.chain-rule-visualizer').offsetTop-70,left:0,behavior:'instant'})})()`); await wait(80);
+await check('five-layer product remains within the mobile page', `document.documentElement.scrollWidth<=document.documentElement.clientWidth&&document.querySelectorAll('.chain-token[data-layer]').length===5`);
+await check('reduced motion keeps the complete equation without movement', `parseFloat(getComputedStyle(document.querySelector('.chain-token--new')).animationDuration)<=.001&&document.querySelector('.chain-rule-equation').textContent.includes('J₅ᵀ')`);
+await screenshot('inside-backprop-mobile');
 
 if (exceptions.length) throw new Error(`Browser exceptions:\n${exceptions.join('\n')}`);
 console.log('Browser smoke checks passed and screenshots captured.');
