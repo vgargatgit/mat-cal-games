@@ -16,7 +16,7 @@ export function deadNeuronIndices(values) {
 export const GATE_STAGES = [
   {
     title: 'Read one gate',
-    objective: 'Choose the local ReLU derivative from the incoming pre-activation.',
+    objective: 'Use ∂L/∂z = (∂L/∂a) × ReLU′(z), and choose the local factor ReLU′(z) from the pre-activation z.',
     questions: [-3, 2.5, 0, -0.2, 4, 1.1].map((value) => ({
       kind: 'gate', value,
       prompt: `A neuron receives z = ${value}. What happens to the backward gradient?`,

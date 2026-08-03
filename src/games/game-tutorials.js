@@ -95,12 +95,12 @@ export const GAME_TUTORIALS = Object.freeze({
   },
   'relu-gatekeeper': {
     steps: [
-      { icon: '∇', title: 'Guard the backward gradient', paragraphs: ['A gradient crystal approaches each ReLU gate from the output side. Predict whether it can travel toward the earlier layer.'], callout: 'Read the displayed pre-activation z, then choose Pass Gradient or Block Gradient.' },
+      { icon: '∇', title: 'Read one gate through the chain rule', paragraphs: ['Let a = ReLU(z). On the backward pass, ∂L/∂z = (∂L/∂a) × ReLU′(z).', 'This first trial isolates ReLU′(z), the local factor. The sign of z selects whether that factor is 1 or 0, so z determines whether the incoming gradient passes or is blocked.'], callout: 'For now, read z and decide the ReLU′(z) factor. Later work will focus on the incoming ∂L/∂a factor and on products across several gates.' },
       { icon: '0/1', title: 'Use the local ReLU derivative', rules: [
         { condition: 'z > 0', derivative: 'ReLU′(z) = 1', action: 'Pass the gradient', kind: 'pass' },
         { condition: 'z ≤ 0', derivative: 'ReLU′(z) = 0', action: 'Block the gradient', kind: 'block' },
       ], paragraphs: ['This arcade uses ReLU′(0)=0. ReLU output may be any positive value, but its derivative here is only 0 or 1.'] },
-      { icon: 'J', title: 'Later trials combine gates', bullets: ['Gate chains pass only when every local derivative is 1.', 'In hidden layers, select every neuron whose pre-activation is zero or negative.', 'Small positive values such as 0.01 survive; they are not dead neurons.'] },
+      { icon: 'J', title: 'Later trials add the other factors', bullets: ['The incoming ∂L/∂a is the other factor in the one-gate product.', 'Gate chains multiply that incoming gradient by several local derivatives; one zero factor blocks the path.', 'In hidden layers, select every neuron whose pre-activation is zero or negative.', 'Small positive values such as 0.01 survive; they are not dead neurons.'] },
       commonFinish('Goal: restore all four trials and identify exactly where gradients pass or disappear.'),
     ],
   },

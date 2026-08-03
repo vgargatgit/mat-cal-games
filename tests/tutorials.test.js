@@ -42,3 +42,12 @@ test('existing ReLU tutorial completion migrates into the shared tutorial store'
   const storage = memoryStorage({ 'arcade.training.relu-gatekeeper.v1': JSON.stringify({ schemaVersion: 1, tutorialSeen: true }) });
   assert.equal(new TutorialStore(storage).hasSeen('relu-gatekeeper'), true);
 });
+
+test('ReLU tutorial introduces the full chain-rule product before isolating the gate factor', () => {
+  const tutorial = tutorialForGame('relu-gatekeeper');
+  const introduction = tutorial.steps[0].paragraphs.join(' ');
+  assert.match(introduction, /∂L\/∂z = \(∂L\/∂a\) × ReLU′\(z\)/);
+  assert.match(introduction, /sign of z/);
+  assert.match(tutorial.steps[0].callout, /incoming ∂L\/∂a factor/);
+  assert.match(tutorial.steps[2].bullets.join(' '), /other factor/);
+});
